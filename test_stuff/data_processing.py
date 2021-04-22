@@ -1,4 +1,4 @@
-def process(datafile):
+def process(datafile,rows):
 
     import numpy as np
     import pandas as pd
@@ -6,7 +6,8 @@ def process(datafile):
     colnames = ["time", "ID", "DLC", "Data1", \
             "Data2", "Data3", "Data4", "Data5", "Data6", "Data7", "Data8", "Attack"]
 
-    nRows = 100000 #number of rows that you want
+    #nRows = 100000 #number of rows that you want
+    nRows = rows
     df = pd.read_csv(datafile, nrows = nRows, sep=',', names=colnames)
     #df = pd.read_csv('gear_dataset.csv', sep=',', names=colnames)
 
