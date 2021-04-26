@@ -28,7 +28,10 @@ def process(datafile,rows):
     #id_data= df[df['ID'] == '0140'].copy()
     id_data = df # to use all ids
     #Just use data values without time, Attack, ID and DLC right now
-    dataValues = id_data.drop(["time", "Attack", "ID", "DLC"], axis = 1).copy()
+   # if keepID == True:
+    dataValues = id_data.drop(["time", "Attack", "DLC"], axis = 1).copy()
+   # else:
+    #dataValues = id_data.drop(["time", "Attack", "ID", "DLC"], axis = 1).copy()
     #dataValues.to_csv (r'one_id.csv', index=None)
 
     dataValues = dataValues.to_numpy()
