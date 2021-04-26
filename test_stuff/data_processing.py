@@ -27,11 +27,10 @@ def process(datafile,rows):
     #Pick an ID
     #id_data= df[df['ID'] == '0140'].copy()
     id_data = df # to use all ids
+    ID_vector = df['ID']
     #Just use data values without time, Attack, ID and DLC right now
-   # if keepID == True:
-    dataValues = id_data.drop(["time", "Attack", "DLC"], axis = 1).copy()
-   # else:
-    #dataValues = id_data.drop(["time", "Attack", "ID", "DLC"], axis = 1).copy()
+
+    dataValues = id_data.drop(["time", "Attack", "ID", "DLC"], axis = 1).copy()
     #dataValues.to_csv (r'one_id.csv', index=None)
 
     dataValues = dataValues.to_numpy()
@@ -45,4 +44,4 @@ def process(datafile,rows):
         storage[currentRow,:] = np.array(list(formatted), dtype=int)
         
 
-    return storage
+    return storage, ID_vector
