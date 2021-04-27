@@ -1,4 +1,4 @@
-def attack_data(datafile,rows)
+def process_attack(datafile,rows)
 
     import numpy as np
     import pandas as pd
