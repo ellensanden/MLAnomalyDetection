@@ -15,7 +15,7 @@ def process(datafile,rows):
 
     #Drop attack packets
     attack = df[df['Attack'] == 'T'].copy()
-    df.drop(attack.index, axis=0, inplace=True)
+    #df.drop(attack.index, axis=0, inplace=True)
     print(len(attack))
     #Drop DLC = 2 packets
     dlc2 = df[df['DLC'] == 2]
@@ -40,5 +40,5 @@ def process(datafile,rows):
         formatted = format(int(tempString, base=16), "064b")
         storage[currentRow,:] = np.array(list(formatted), dtype=int)
         
-    print('changed')
+    
     return storage, ID_vector
