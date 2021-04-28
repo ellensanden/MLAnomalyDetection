@@ -18,7 +18,7 @@ def process(datafile,rows,no_attack_packets):
     if no_attack_packets == True:
         df.drop(attack.index, axis=0, inplace=True)
         print(f'dropped {len(attack)} attack packets')
-    else
+    else:
         print(f'number of attack packets in data set = {len(attack)}')
 
     #Drop DLC = 2 packets
