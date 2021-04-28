@@ -43,5 +43,5 @@ def process(datafile,rows):
         formatted = format(int(tempString, base=16), "064b")
         storage[currentRow,:] = np.array(list(formatted), dtype=int)
         
-
+    print('changed')
     return storage, ID_vector
