@@ -18,11 +18,9 @@ def process(datafile,rows):
   #  df.drop(attack.index, axis=0, inplace=True)
 
     #Drop DLC = 2 packets
-    dlc2 = df[df['DLC'] == 2]
-    df.drop(dlc2.index, axis=0, inplace=True) #drop all dlc2 indexes
+    #dlc2 = df[df['DLC'] == 2]
+    #df.drop(dlc2.index, axis=0, inplace=True) #drop all dlc2 indexes
 
-    #Reset index from 1 to n (not needed actually, so commenting out)
-    #df.set_index(np.arange(len(df)), inplace=True)
 
     #Pick an ID
     #id_data= df[df['ID'] == '0140'].copy()
@@ -31,7 +29,6 @@ def process(datafile,rows):
     #Just use data values without time, Attack, ID and DLC right now
 
     dataValues = id_data.drop(["time", "Attack", "ID", "DLC"], axis = 1).copy()
-    #dataValues.to_csv (r'one_id.csv', index=None)
 
     dataValues = dataValues.to_numpy()
 
