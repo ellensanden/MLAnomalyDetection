@@ -1,4 +1,4 @@
-def process(datafile,rows):
+def process(datafile,rows,no_attack_packets):
 
     import numpy as np
     import pandas as pd
@@ -15,8 +15,12 @@ def process(datafile,rows):
 
     #Drop attack packets
     attack = df[df['Attack'] == 'T'].copy()
-    #df.drop(attack.index, axis=0, inplace=True)
-    print(f'number of attack packets = {len(attack)}')
+    if no_attack_packets == True:
+        df.drop(attack.index, axis=0, inplace=True)
+        print(f'dropped' {len(attack)} 'attack packets')
+    else
+        print(f'number of attack packets in data set = {len(attack)}')
+
     #Drop DLC = 2 packets
     dlc2 = df[df['DLC'] == 2]
     df.drop(dlc2.index, axis=0, inplace=True) #drop all dlc2 indexes
