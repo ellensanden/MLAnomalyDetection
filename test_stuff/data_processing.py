@@ -14,12 +14,12 @@ def process(datafile,rows):
     uniqueIDs = df['ID'].unique() #26 for the entire dataset
 
     #Drop attack packets
-   # attack = df[df['Attack'] == 'T'].copy()
+    attack = df[df['Attack'] == 'T'].copy()
   #  df.drop(attack.index, axis=0, inplace=True)
-
+    print(len(attack))
     #Drop DLC = 2 packets
-    #dlc2 = df[df['DLC'] == 2]
-    #df.drop(dlc2.index, axis=0, inplace=True) #drop all dlc2 indexes
+    dlc2 = df[df['DLC'] == 2]
+    df.drop(dlc2.index, axis=0, inplace=True) #drop all dlc2 indexes
 
 
     #Pick an ID
