@@ -14,8 +14,8 @@ def process(datafile,rows):
     uniqueIDs = df['ID'].unique() #26 for the entire dataset
 
     #Drop attack packets
-    attack = df[df['Attack'] == 'T'].copy()
-    df.drop(attack.index, axis=0, inplace=True)
+   # attack = df[df['Attack'] == 'T'].copy()
+  #  df.drop(attack.index, axis=0, inplace=True)
 
     #Drop DLC = 2 packets
     dlc2 = df[df['DLC'] == 2]
