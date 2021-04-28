@@ -16,7 +16,7 @@ def process(datafile,rows):
     #Drop attack packets
     attack = df[df['Attack'] == 'T'].copy()
     #df.drop(attack.index, axis=0, inplace=True)
-    print(len(attack))
+    print(f'number of attack packets = {len(attack)}')
     #Drop DLC = 2 packets
     dlc2 = df[df['DLC'] == 2]
     df.drop(dlc2.index, axis=0, inplace=True) #drop all dlc2 indexes
