@@ -17,7 +17,7 @@ def process(datafile,rows,no_attack_packets):
     attack = df[df['Attack'] == 'T'].copy()
     if no_attack_packets == True:
         df.drop(attack.index, axis=0, inplace=True)
-        print(f'dropped' {len(attack)} 'attack packets')
+        print(f'dropped {len(attack)} attack packets')
     else
         print(f'number of attack packets in data set = {len(attack)}')
 
