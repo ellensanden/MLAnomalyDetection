@@ -58,3 +58,56 @@ id = convert_from_hex(IDs,'dec')
 ID_matrix =  array([[id],]*data.shape[1]).transpose()
 ID_matrix = np.squeeze(ID_matrix)
 dataCube = np.dstack([data,ID_matrix])
+AttackIDs = AttackIDs.reset_index(drop=True)
+
+Attackid = convert_from_hex(AttackIDs,'dec') 
+
+ID_matrixA =  array([[Attackid],]*data_with_attack.shape[1]).transpose()
+ID_matrixA = np.squeeze(ID_matrixA)
+dataCubeA = np.dstack([data_with_attack,ID_matrixA])
+
+n_timesteps = 12
+n_samples = int(np.floor(dataCube.shape[0]/n_timesteps))
+print(n_samples)
+
+last_timestep = n_samples*n_timesteps
+x = dataCube[0:last_timestep,:,:]
+print(x.shape)
+x = x.reshape(n_samples,64,2,n_timesteps)
+print(x.shape)
+
+train_size = int(np.floor(0.7*n_samples))
+x_train = x[0:train_size,:,:,:]
+x_test = x[train_size:,:,:,:]
+
+print(x_test.shape, x_train.shape)
+
+
+n_samples = int(np.floor(dataCubeA.shape[0]/n_timesteps))
+print(n_samples)
+
+last_timestep = n_samples*n_timesteps
+xA = dataCubeA[0:last_timestep,:,:]
+print(xA.shape)
+xA = xA.reshape(n_samples,64,2,n_timesteps)
+print(xA.shape)
+
+model =  keras.models.load_model('CNN_LSTM_trained_on_50000_nonattack')
+
+import time
+
+es = EarlyStopping(monitor='val_loss', mode='min', verbose=0, patience=10)
+
+s = time.time()
+
+history = model.fit(x_train,x_train, validation_data=(x_test, x_test), epochs=300, verbose=2, shuffle=False, callbacks = [es])
+
+e = time.time()
+
+# plot history
+pyplot.plot(history.history['loss'], label = 'train')
+pyplot.plot(history.history['val_loss'], label = 'validation')
+
+pyplot.legend()
+pyplot.show()
+print(f'training time = {e-s} seconds')
