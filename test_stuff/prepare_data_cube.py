@@ -1,6 +1,6 @@
-def make_cubes():
+def make_cubes(IDs,AttackIDs,data,data_with_attack,n_timesteps,type):
     # do cube with stream*64*ID
-
+    import numpy as np
     def convert_from_hex(hex,output_type): # converts the data in hex from hexadecimal to decimal or binary form
         out = np.zeros((hex.size))
         if output_type == 'dec':
@@ -33,58 +33,71 @@ def make_cubes():
     dataCubeA = np.dstack([data_with_attack,ID_matrixA])
 
 
+    if type == cnn:
+        n_samples = int(np.floor(dataCube.shape[0]/n_timesteps))
 
-    n_timesteps = 40
-    n_samples = int(np.floor(dataCube.shape[0]/n_timesteps))
-    print(n_samples)
+        last_timestep = n_samples*n_timesteps
+        x = dataCube[0:last_timestep,:,:]
+        x = x.reshape(n_samples,n_timesteps,64,2,1)
 
-    last_timestep = n_samples*n_timesteps
-    x = dataCube[0:last_timestep,:,:]
-    print(x.shape)
-    x = x.reshape(n_samples,n_timesteps,64,2,1)
-    print(x.shape)
+        train_size = int(np.floor(0.7*n_samples))
+        x_train = x[0:train_size,:,:,:,:]
+        x_test = x[train_size:,:,:,:,:]
 
-    train_size = int(np.floor(0.7*n_samples))
-    x_train = x[0:train_size,:,:,:,:]
-    x_test = x[train_size:,:,:,:,:]
+        print(x_test.shape, x_train.shape)
 
-    print(x_test.shape, x_train.shape)
+        n_samples = int(np.floor(dataCubeA.shape[0]/n_timesteps))
 
-    n_samples = int(np.floor(dataCubeA.shape[0]/n_timesteps))
-    print(n_samples)
-
-    last_timestep = n_samples*n_timesteps
-    xA = dataCubeA[0:last_timestep,:,:]
-    print(xA.shape)
-    xA = xA.reshape(n_samples,n_timesteps,64,2,1)
-    print(xA.shape)
+        last_timestep = n_samples*n_timesteps
+        xA = dataCubeA[0:last_timestep,:,:]
+        xA = xA.reshape(n_samples,n_timesteps,64,2,1)
+        return x_test,x_train,xA
 
     # for cnn lstm
-    n_timesteps = 12
-    n_samples = int(np.floor(dataCube.shape[0]/n_timesteps))
-    print(n_samples)
+    if type == cnn_lstm:
+        n_samples = int(np.floor(dataCube.shape[0]/n_timesteps))
 
-    last_timestep = n_samples*n_timesteps
-    x = dataCube[0:last_timestep,:,:]
-    print(x.shape)
-    x = x.reshape(n_samples,64,2,n_timesteps)
-    print(x.shape)
+        last_timestep = n_samples*n_timesteps
+        x = dataCube[0:last_timestep,:,:]
+        x = x.reshape(n_samples,64,2,n_timesteps)
 
-    train_size = int(np.floor(0.7*n_samples))
-    x_train = x[0:train_size,:,:,:]
-    x_test = x[train_size:,:,:,:]
+        train_size = int(np.floor(0.7*n_samples))
+        x_train = x[0:train_size,:,:,:]
+        x_test = x[train_size:,:,:,:]
 
-    print(x_test.shape, x_train.shape)
+        print(x_test.shape, x_train.shape)
 
 
-    n_samples = int(np.floor(dataCubeA.shape[0]/n_timesteps))
-    print(n_samples)
+        n_samples = int(np.floor(dataCubeA.shape[0]/n_timesteps))
 
-    last_timestep = n_samples*n_timesteps
-    xA = dataCubeA[0:last_timestep,:,:]
-    print(xA.shape)
-    xA = xA.reshape(n_samples,64,2,n_timesteps)
-    print(xA.shape)
-
+        last_timestep = n_samples*n_timesteps
+        xA = dataCubeA[0:last_timestep,:,:]
+        xA = xA.reshape(n_samples,64,2,n_timesteps)
+        return x_test,x_train,xA
+    
 
     # for time dist cnn 
+    if type == timeDist_cnn:
+        n_samples = int(np.floor(dataCube.shape[0]/n_timesteps))
+
+        last_timestep = n_samples*n_timesteps
+        x = dataCube[0:last_timestep,:,:]
+        x = x.reshape(n_samples,n_timesteps,64,2)
+
+        train_size = int(np.floor(0.7*n_samples))
+        x_train = x[0:train_size,:,:,:]
+        x_test = x[train_size:,:,:,:]
+
+        print(x_test.shape, x_train.shape)
+
+
+        n_samples = int(np.floor(dataCubeA.shape[0]/n_timesteps))
+
+        last_timestep = n_samples*n_timesteps
+        xA = dataCubeA[0:last_timestep,:,:]
+        xA = xA.reshape(n_samples,n_timesteps,64,2)
+        return x_test,x_train,xA
+
+
+    return x_test,x_train,xA
+
