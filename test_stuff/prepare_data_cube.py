@@ -1,6 +1,7 @@
 def make_cubes(IDs,AttackIDs,data,data_with_attack,n_timesteps,type):
     # do cube with stream*64*ID
     import numpy as np
+    from numpy import array
     def convert_from_hex(hex,output_type): # converts the data in hex from hexadecimal to decimal or binary form
         out = np.zeros((hex.size))
         if output_type == 'dec':
