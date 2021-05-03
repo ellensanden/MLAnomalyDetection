@@ -33,7 +33,7 @@ def make_cubes(IDs,AttackIDs,data,data_with_attack,n_timesteps,type):
     dataCubeA = np.dstack([data_with_attack,ID_matrixA])
 
 
-    if type == cnn:
+    if type == 'cnn':
         n_samples = int(np.floor(dataCube.shape[0]/n_timesteps))
 
         last_timestep = n_samples*n_timesteps
@@ -54,7 +54,7 @@ def make_cubes(IDs,AttackIDs,data,data_with_attack,n_timesteps,type):
         return x_test,x_train,xA
 
     # for cnn lstm
-    if type == cnn_lstm:
+    if type == 'cnn_lstm':
         n_samples = int(np.floor(dataCube.shape[0]/n_timesteps))
 
         last_timestep = n_samples*n_timesteps
@@ -77,7 +77,7 @@ def make_cubes(IDs,AttackIDs,data,data_with_attack,n_timesteps,type):
     
 
     # for time dist cnn 
-    if type == timeDist_cnn:
+    if type == 'timeDist_cnn':
         n_samples = int(np.floor(dataCube.shape[0]/n_timesteps))
 
         last_timestep = n_samples*n_timesteps
