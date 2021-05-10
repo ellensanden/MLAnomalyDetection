@@ -45,4 +45,4 @@ def process(datafile,rows,no_attack_packets):
         storage[currentRow,:] = np.array(list(formatted), dtype=int)
         
     
-    return storage, ID_vector
+    return storage, ID_vector,id_data

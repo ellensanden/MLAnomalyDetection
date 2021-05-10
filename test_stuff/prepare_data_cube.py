@@ -1,4 +1,4 @@
-def make_cubes(IDs,AttackIDs,data,data_with_attack,n_timesteps,type):
+def make_cubes(IDs,AttackIDs,data,data_with_attack,n_timesteps,type,labeled_data):
     # do cube with stream*64*ID
     import numpy as np
     from numpy import array
@@ -26,7 +26,7 @@ def make_cubes(IDs,AttackIDs,data,data_with_attack,n_timesteps,type):
     dataCube = np.dstack([data,ID_matrix])
 
     AttackIDs = AttackIDs.reset_index(drop=True)
-
+    
     Attackid = convert_from_hex(AttackIDs,'dec') 
 
     ID_matrixA =  array([[Attackid],]*data_with_attack.shape[1]).transpose()
@@ -83,7 +83,7 @@ def make_cubes(IDs,AttackIDs,data,data_with_attack,n_timesteps,type):
 
         last_timestep = n_samples*n_timesteps
         x = dataCube[0:last_timestep,:,:]
-        x = x.reshape(n_samples,n_timesteps,64,2)
+        x = x.reshape(n_samples,n_timesteps,64,2,1)
 
         train_size = int(np.floor(0.7*n_samples))
         x_train = x[0:train_size,:,:,:]
@@ -96,7 +96,7 @@ def make_cubes(IDs,AttackIDs,data,data_with_attack,n_timesteps,type):
 
         last_timestep = n_samples*n_timesteps
         xA = dataCubeA[0:last_timestep,:,:]
-        xA = xA.reshape(n_samples,n_timesteps,64,2)
+        xA = xA.reshape(n_samples,n_timesteps,64,2,1)
         return x_test,x_train,xA
 
 
