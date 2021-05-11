@@ -6,11 +6,13 @@ def process(datafile,rows,no_attack_packets):
     colnames = ["time", "ID", "DLC", "Data1", \
             "Data2", "Data3", "Data4", "Data5", "Data6", "Data7", "Data8", "Attack"]
 
-    #nRows = 100000 #number of rows that you want
     nRows = rows
     df = pd.read_csv(datafile, nrows = nRows, sep=',', names=colnames)
     #df = pd.read_csv('gear_dataset.csv', sep=',', names=colnames)
 
+    #df = pd.read_csv(datafile,nrows= 550000, sep=',', names=colnames) #these are for slicing unseen data
+    #df = df.iloc[500000:550000,:]                                     #these are for slicing unseen data
+    
     uniqueIDs = df['ID'].unique() #26 for the entire dataset
 
     #Drop attack packets
