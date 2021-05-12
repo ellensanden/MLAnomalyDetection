@@ -27,17 +27,17 @@ from numpy import array
 
 from data_processing import process
 filename = 'gear_dataset.csv'
-rows = 500000  # no attack data in the first 1000 rows # 500  000 highest i can go without killing gpu for cnn_lstm
+rows = 50000  # no attack data in the first 1000 rows # 500  000 highest i can go without killing gpu for cnn_lstm
 data_with_attack, AttackIDs, labeled_data = process(filename,rows,no_attack_packets=False) 
 print(f'including attack data: {data_with_attack.shape}')
 
-data , IDs, _ = process(filename,rows,no_attack_packets=True)
+data , IDs, _ = process(filename,rows,no_attack_packets=True) 
 print(f'normal data: {data.shape}')
 
 n_rows = data.shape[0] 
 n_features = data.shape[1]
 
-n_timesteps = 40 # 40 gave good results
+n_timesteps = 40 # 40 gave better results than 20
 
 labeled_data = labeled_data.reset_index(drop=True)
 attack = labeled_data[labeled_data['Attack'] == 'T'].copy()
@@ -48,9 +48,9 @@ attack_samples = attack_samples.astype(int)
 
 from prepare_data_cube import make_cubes
 
-#type = 'timeDist_cnn'
+type = 'timeDist_cnn'
 #type = 'cnn_lstm'
-type = 'cnn'
+#type = 'cnn'
 x_test,x_train,xA,last_attack_timestep = make_cubes(IDs,AttackIDs,data,data_with_attack,n_timesteps,type,labeled_data)
 
 if type == 'cnn':
@@ -82,13 +82,150 @@ if type == 'cnn':
 
 
 
-    x = Conv3D(filters = 1, kernel_size = (2, 2, 2), strides=(1, 1, 4), activation='relu', padding='same')(x)
+    x = Conv3D(filters = 1, kernel_size = (2, 2, 2), strides=(1, 1, 4), activation='sigmoid', padding='same')(x)
 
     CNN = Model(inputs=input, outputs=x,name="CNN")
     CNN.compile(optimizer='adam', loss='mse')
     CNN.summary()
     
     model = CNN
+
+    # for 20 timesteps
+    
+    # input = Input(shape=(x_train.shape[1],x_train.shape[2],x_train.shape[3], 1))
+
+    # x = Conv3D(filters = 60, kernel_size = (2, 2, 2), strides=(2, 2, 2), activation='relu', padding='same')(input) 
+    # x = MaxPool3D((2,2,2),padding='same')(x)
+
+    # x = Conv3D(filters = 30, kernel_size = (2, 2, 2), strides=(1, 1, 1), activation='relu', padding='same')(x)
+    # x = MaxPool3D((1,2,2),padding='same')(x)
+
+    # # x = Conv3D(filters = 60, kernel_size = (2, 2, 2), strides=(1, 1, 1), activation='relu', padding='same')(x)
+    # # x = UpSampling3D(size=(2,2,2))(x)
+
+    # # x = Conv3D(filters = 1, kernel_size = (2, 2, 1), strides=(2, 2, 1), activation='relu', padding='same')(x)
+    # # x = UpSampling3D(size=(2,2,2))(x)
+
+    # # x = Conv3D(filters = 60, kernel_size = (2, 2, 1), strides=(2, 2, 1), activation='relu', padding='same')(x)
+    # #x = UpSampling3D(size=(2,2,1))(x)
+    # #x = UpSampling3D(size=(2,2,1))(x)
+    # x = Conv3DTranspose(60,kernel_size=(1,2,2), strides=(2, 2, 2))(x)
+    # x = Conv3D(filters = 1, kernel_size = (2, 2, 2), strides=(1, 1, 3), activation='relu', padding='same')(x)
+
+    # x = Conv3DTranspose(60,kernel_size=(2,2,2), strides=(2, 2, 17))(x)
+    # #x = Conv3D(filters = 30, kernel_size = (2, 2, 2), strides=(1, 6, 1), activation='relu', padding='same')(x)
+
+    # #x = Conv3DTranspose(30,kernel_size=(2,2,2), strides=(2, 2, 2))(x)
+    # x = Conv3DTranspose(20,kernel_size=(1,2,2), strides=(1, 2, 2))(x)
+
+
+
+    # x = Conv3D(filters = 1, kernel_size = (1, 2, 2), strides=(1, 1, 4), activation='relu', padding='same')(x)
+
+    # CNN = Model(inputs=input, outputs=x,name="CNN")
+    # CNN.compile(optimizer='adam', loss='mse') # try with BinaryCrossentropy next time
+    # CNN.summary()
+    # model = CNN
+
+    # added LSTM after
+    # input = Input(shape=(x_train.shape[1],x_train.shape[2],x_train.shape[3], 1))
+
+    # x = Conv3D(filters = 60, kernel_size = (2, 2, 2), strides=(2, 2, 2), activation='relu', padding='same')(input) 
+    # x = MaxPool3D((2,2,2),padding='same')(x)
+
+    # x = Conv3D(filters = 30, kernel_size = (2, 2, 2), strides=(1, 1, 1), activation='relu', padding='same')(x)
+    # x = MaxPool3D((1,2,2),padding='same')(x)
+
+    # # x = Conv3D(filters = 60, kernel_size = (2, 2, 2), strides=(1, 1, 1), activation='relu', padding='same')(x)
+    # # x = UpSampling3D(size=(2,2,2))(x)
+
+    # # x = Conv3D(filters = 1, kernel_size = (2, 2, 1), strides=(2, 2, 1), activation='relu', padding='same')(x)
+    # # x = UpSampling3D(size=(2,2,2))(x)
+
+    # # x = Conv3D(filters = 60, kernel_size = (2, 2, 1), strides=(2, 2, 1), activation='relu', padding='same')(x)
+    # #x = UpSampling3D(size=(2,2,1))(x)
+    # #x = UpSampling3D(size=(2,2,1))(x)
+    # x = Conv3DTranspose(60,kernel_size=(1,2,2), strides=(2, 2, 2))(x)
+    # x = Conv3D(filters = 1, kernel_size = (2, 2, 2), strides=(1, 1, 3), activation='relu', padding='same')(x)
+
+    # x = Conv3DTranspose(60,kernel_size=(2,2,2), strides=(2, 2, 17))(x)
+    # #x = Conv3D(filters = 30, kernel_size = (2, 2, 2), strides=(1, 6, 1), activation='relu', padding='same')(x)
+
+    # #x = Conv3DTranspose(30,kernel_size=(2,2,2), strides=(2, 2, 2))(x)
+    # x = Conv3DTranspose(20,kernel_size=(1,2,2), strides=(1, 2, 2))(x)
+
+
+
+    # x = Conv3D(filters = 1, kernel_size = (1, 2, 2), strides=(1, 1, 4), activation='relu', padding='same')(x)
+    # #x = tf.squeeze(x,[0,4])
+    # x = tf.squeeze(x,4)
+    # x = Reshape((x.shape[1]*x.shape[2],x.shape[3]))(x)
+    # x = LSTM(100,return_sequences=True,return_state=False)(x) # put lstm model as a separate model after? 
+    # x = LSTM(50,return_sequences=True)(x)
+    # x = LSTM(17,return_sequences=True)(x)
+
+    # x = tf.expand_dims(x,-1)
+    # x = Reshape((x_train.shape[1],x_train.shape[2],x_train.shape[3], 1))(x)
+
+    # #x = Conv3D(filters = 1, kernel_size = (1, 1, 1), strides=(1, 1, 1), activation='relu', padding='same')(x)
+
+    # CNN = Model(inputs=input, outputs=x,name="CNN")
+    # CNN.compile(optimizer='adam', loss='mse')
+    # CNN.summary()
+
+    # model = CNN
+
+    # alternative cnn
+    # input = Input(shape=(x_train.shape[1],x_train.shape[2],x_train.shape[3], 1))
+
+    # x = Conv3D(filters = 10, kernel_size = (4, 4, 4), strides=(2, 2, 2), activation='relu', padding='same')(input) 
+    # x = MaxPool3D((2,2,2),padding='same')(x)
+
+    # x = Conv3D(filters = 10, kernel_size = (2, 2, 2), strides=(1, 1, 1), activation='relu', padding='same')(x)
+    # x = MaxPool3D((1,2,2),padding='same')(x)
+
+    # x = Conv3D(filters = 10, kernel_size = (2, 2, 2), strides=(1, 1, 1), activation='relu', padding='same')(x)
+    # x = MaxPool3D((1,2,2),padding='same')(x)
+
+    # # x = Conv3D(filters = 60, kernel_size = (2, 2, 2), strides=(1, 1, 1), activation='relu', padding='same')(x)
+    # # x = UpSampling3D(size=(2,2,2))(x)
+
+    # # x = Conv3D(filters = 1, kernel_size = (2, 2, 1), strides=(2, 2, 1), activation='relu', padding='same')(x)
+    # # x = UpSampling3D(size=(2,2,2))(x)
+
+    # # x = Conv3D(filters = 60, kernel_size = (2, 2, 1), strides=(2, 2, 1), activation='relu', padding='same')(x)
+    # #x = UpSampling3D(size=(2,2,1))(x)
+    # #x = UpSampling3D(size=(2,2,1))(x)
+    # x = Conv3DTranspose(10,kernel_size=(1,2,2), strides=(2, 2, 2))(x)
+    # x = Conv3D(filters = 1, kernel_size = (2, 2, 2), strides=(1, 1, 3), activation='relu', padding='same')(x)
+
+    # x = Conv3DTranspose(20,kernel_size=(2,2,2), strides=(2, 2, 17))(x)
+    # #x = Conv3D(filters = 30, kernel_size = (2, 2, 2), strides=(1, 6, 1), activation='relu', padding='same')(x)
+
+    # #x = Conv3DTranspose(30,kernel_size=(2,2,2), strides=(2, 2, 2))(x)
+    # x = Conv3DTranspose(20,kernel_size=(1,2,2), strides=(1, 2, 2))(x)
+    # x = Conv3DTranspose(20,kernel_size=(1,1,1), strides=(1, 2, 1))(x)
+
+
+    # x = Conv3D(filters = 1, kernel_size = (2, 2, 2), strides=(1, 1, 4), activation='sigmoid', padding='same')(x)
+    # #x = tf.squeeze(x,[0,4])
+    # # x = tf.squeeze(x,4)
+    # # x = Reshape((x.shape[1]*x.shape[2],x.shape[3]))(x)
+    # # x = LSTM(100,return_sequences=True,return_state=False)(x) # put lstm model as a separate model after? 
+    # # x = LSTM(50,return_sequences=True)(x)
+    # # x = LSTM(17,return_sequences=True)(x)
+
+    # # x = tf.expand_dims(x,-1)
+    # # x = Reshape((x_train.shape[1],x_train.shape[2],x_train.shape[3], 1))(x)
+
+    # #x = Conv3D(filters = 1, kernel_size = (1, 1, 1), strides=(1, 1, 1), activation='relu', padding='same')(x)
+
+    # CNN = Model(inputs=input, outputs=x,name="CNN")
+    # CNN.compile(optimizer='adam', loss='mse')
+    # CNN.summary()
+
+    # model = CNN
+
 
 if type == 'cnn_lstm':
     # input = Input(shape=(n_features,2,n_timesteps))
@@ -147,7 +284,8 @@ if type == 'timeDist_cnn':
     model.add(
         TimeDistributed(
             Conv2D(60, (2,1), activation='relu',padding='same'), 
-            input_shape=(n_timesteps, n_features, 2, 1) # 5 images...
+            input_shape=(x_train.shape[1], x_train.shape[2], x_train.shape[3]
+    , 1) # 5 images...
         )
     )
     model.add(
@@ -188,7 +326,7 @@ if type == 'timeDist_cnn':
 
     model.add(
         TimeDistributed(
-            UpSampling2D((2,2))
+            UpSampling2D((2,17))
         )
     )
 
@@ -198,7 +336,7 @@ if type == 'timeDist_cnn':
         )
     )
 
-    model.compile('adam', loss='KLDivergence')
+    model.compile('adam', loss='BinaryCrossentropy')
 
     model.summary()
 
@@ -208,7 +346,7 @@ es = EarlyStopping(monitor='val_loss', mode='min', verbose=0, patience=10)
 
 s = time.time()
 
-history = model.fit(x_train,x_train, validation_data=(x_test, x_test), epochs=1000, verbose=2, shuffle=False, callbacks = [es])
+history = model.fit(x_train,x_train, validation_data=(x_test, x_test), epochs=500, verbose=2, shuffle=False, callbacks = [es])
 
 e = time.time()
 

@@ -8,10 +8,9 @@ def process(datafile,rows,no_attack_packets):
 
     nRows = rows
     df = pd.read_csv(datafile, nrows = nRows, sep=',', names=colnames)
-    #df = pd.read_csv('gear_dataset.csv', sep=',', names=colnames)
 
     #df = pd.read_csv(datafile,nrows= 550000, sep=',', names=colnames) #these are for slicing unseen data
-    #df = df.iloc[500000:550000,:]                                     #these are for slicing unseen data
+    #df = df.iloc[500000:500500,:]                                     #these are for slicing unseen data
     
     uniqueIDs = df['ID'].unique() #26 for the entire dataset
 
