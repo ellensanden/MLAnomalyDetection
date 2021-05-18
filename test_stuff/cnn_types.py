@@ -27,7 +27,7 @@ from numpy import array
 
 from data_processing import process
 filename = 'gear_dataset.csv'
-rows = 50000  # no attack data in the first 1000 rows # 500  000 highest i can go without killing gpu for cnn_lstm
+rows = 50000   # 500  000 highest i can go without killing gpu for cnn_lstm 
 data_with_attack, AttackIDs, labeled_data = process(filename,rows,no_attack_packets=False) 
 print(f'including attack data: {data_with_attack.shape}')
 
@@ -48,47 +48,47 @@ attack_samples = attack_samples.astype(int)
 
 from prepare_data_cube import make_cubes
 
-type = 'timeDist_cnn'
+#type = 'timeDist_cnn'
 #type = 'cnn_lstm'
-#type = 'cnn'
+type = 'cnn'
 x_test,x_train,xA,last_attack_timestep = make_cubes(IDs,AttackIDs,data,data_with_attack,n_timesteps,type,labeled_data)
 
 if type == 'cnn':
-    input = Input(shape=(x_train.shape[1],x_train.shape[2],x_train.shape[3], 1))
+    # input = Input(shape=(x_train.shape[1],x_train.shape[2],x_train.shape[3], 1))
 
-    x = Conv3D(filters = 60, kernel_size = (2, 2, 2), strides=(2, 2, 2), activation='relu', padding='same')(input) 
-    x = MaxPool3D((2,2,2),padding='same')(x)
+    # x = Conv3D(filters = 60, kernel_size = (2, 2, 2), strides=(2, 2, 2), activation='relu', padding='same')(input) 
+    # x = MaxPool3D((2,2,2),padding='same')(x)
 
-    x = Conv3D(filters = 30, kernel_size = (2, 2, 2), strides=(1, 1, 1), activation='relu', padding='same')(x)
-    x = MaxPool3D((2,2,2),padding='same')(x)
+    # x = Conv3D(filters = 30, kernel_size = (2, 2, 2), strides=(1, 1, 1), activation='relu', padding='same')(x)
+    # x = MaxPool3D((2,2,2),padding='same')(x)
 
-    # x = Conv3D(filters = 60, kernel_size = (2, 2, 2), strides=(1, 1, 1), activation='relu', padding='same')(x)
-    # x = UpSampling3D(size=(2,2,2))(x)
+    # # x = Conv3D(filters = 60, kernel_size = (2, 2, 2), strides=(1, 1, 1), activation='relu', padding='same')(x)
+    # # x = UpSampling3D(size=(2,2,2))(x)
 
-    # x = Conv3D(filters = 1, kernel_size = (2, 2, 1), strides=(2, 2, 1), activation='relu', padding='same')(x)
-    # x = UpSampling3D(size=(2,2,2))(x)
+    # # x = Conv3D(filters = 1, kernel_size = (2, 2, 1), strides=(2, 2, 1), activation='relu', padding='same')(x)
+    # # x = UpSampling3D(size=(2,2,2))(x)
 
-    # x = Conv3D(filters = 60, kernel_size = (2, 2, 1), strides=(2, 2, 1), activation='relu', padding='same')(x)
-    #x = UpSampling3D(size=(2,2,1))(x)
-    #x = UpSampling3D(size=(2,2,1))(x)
-    x = Conv3DTranspose(60,kernel_size=(2,2,2), strides=(2, 2, 2))(x)
-    x = Conv3D(filters = 1, kernel_size = (2, 2, 2), strides=(1, 1, 3), activation='relu', padding='same')(x)
+    # # x = Conv3D(filters = 60, kernel_size = (2, 2, 1), strides=(2, 2, 1), activation='relu', padding='same')(x)
+    # #x = UpSampling3D(size=(2,2,1))(x)
+    # #x = UpSampling3D(size=(2,2,1))(x)
+    # x = Conv3DTranspose(60,kernel_size=(2,2,2), strides=(2, 2, 2))(x)
+    # x = Conv3D(filters = 1, kernel_size = (2, 2, 2), strides=(1, 1, 3), activation='relu', padding='same')(x)
 
-    x = Conv3DTranspose(60,kernel_size=(2,2,2), strides=(2, 2, 17))(x)
-    #x = Conv3D(filters = 30, kernel_size = (2, 2, 2), strides=(1, 6, 1), activation='relu', padding='same')(x)
+    # x = Conv3DTranspose(60,kernel_size=(2,2,2), strides=(2, 2, 17))(x)
+    # #x = Conv3D(filters = 30, kernel_size = (2, 2, 2), strides=(1, 6, 1), activation='relu', padding='same')(x)
 
-    #x = Conv3DTranspose(30,kernel_size=(2,2,2), strides=(2, 2, 2))(x)
-    x = Conv3DTranspose(20,kernel_size=(2,2,2), strides=(2, 2, 2))(x)
+    # #x = Conv3DTranspose(30,kernel_size=(2,2,2), strides=(2, 2, 2))(x)
+    # x = Conv3DTranspose(20,kernel_size=(2,2,2), strides=(2, 2, 2))(x)
 
 
 
-    x = Conv3D(filters = 1, kernel_size = (2, 2, 2), strides=(1, 1, 4), activation='sigmoid', padding='same')(x)
+    # x = Conv3D(filters = 1, kernel_size = (2, 2, 2), strides=(1, 1, 4), activation='sigmoid', padding='same')(x)
 
-    CNN = Model(inputs=input, outputs=x,name="CNN")
-    CNN.compile(optimizer='adam', loss='mse')
-    CNN.summary()
+    # CNN = Model(inputs=input, outputs=x,name="CNN")
+    # CNN.compile(optimizer='adam', loss='mse')
+    # CNN.summary()
     
-    model = CNN
+    # model = CNN
 
     # for 20 timesteps
     
@@ -225,6 +225,92 @@ if type == 'cnn':
     # CNN.summary()
 
     # model = CNN
+    # alternative
+    # input = Input(shape=(x_train.shape[1],x_train.shape[2],x_train.shape[3], 1))
+
+    # x = Conv3D(filters = 60, kernel_size = (11, 11, 11), strides=(1, 1, 1), activation='relu', padding='same')(input) 
+    # x = MaxPool3D((2,2,2),padding='same')(x)
+
+    # x = Conv3D(filters = 10, kernel_size = (9, 9, 3), strides=(1, 1, 1), activation='relu', padding='same')(x)
+    # x = MaxPool3D((1,2,2),padding='same')(x)
+
+    # x = Conv3D(filters = 5, kernel_size = (3, 3, 3), strides=(1, 1, 1), activation='relu', padding='same')(x)
+    # x = MaxPool3D((2,2,2),padding='same')(x)
+
+    # # x = Conv3D(filters = 60, kernel_size = (2, 2, 2), strides=(1, 1, 1), activation='relu', padding='same')(x)
+    # # x = UpSampling3D(size=(2,2,2))(x)
+
+    # # x = Conv3D(filters = 1, kernel_size = (2, 2, 1), strides=(2, 2, 1), activation='relu', padding='same')(x)
+    # # x = UpSampling3D(size=(2,2,2))(x)
+
+    # # x = Conv3D(filters = 60, kernel_size = (2, 2, 1), strides=(2, 2, 1), activation='relu', padding='same')(x)
+    # #x = UpSampling3D(size=(2,2,1))(x)
+    # #x = UpSampling3D(size=(2,2,1))(x)
+    # x = Conv3DTranspose(5,kernel_size=(3,3,3), strides=(1, 1, 1))(x)
+    # #x = Conv3D(filters = 10, kernel_size = (9, 9, 2), strides=(1, 1, 3), activation='relu', padding='same')(x)
+
+    # x = Conv3DTranspose(10,kernel_size=(9,9,3), strides=(1, 1, 1))(x)
+    # #x = Conv3D(filters = 30, kernel_size = (2, 2, 2), strides=(1, 6, 1), activation='relu', padding='same')(x)
+
+    # #x = Conv3DTranspose(30,kernel_size=(2,2,2), strides=(2, 2, 2))(x)
+    # x = Conv3DTranspose(10,kernel_size=(11,11,11), strides=(1, 1, 1))(x)
+    # x = Conv3DTranspose(1,kernel_size=(11,37,1), strides=(1, 1, 1))(x)
+
+
+    # #x = Conv3D(filters = 1, kernel_size = (2, 2, 2), strides=(1, 1, 4), activation='sigmoid', padding='same')(x)
+    # #x = tf.squeeze(x,[0,4])
+    # # x = tf.squeeze(x,4)
+    # # x = Reshape((x.shape[1]*x.shape[2],x.shape[3]))(x)
+    # # x = LSTM(100,return_sequences=True,return_state=False)(x) # put lstm model as a separate model after? 
+    # # x = LSTM(50,return_sequences=True)(x)
+    # # x = LSTM(17,return_sequences=True)(x)
+
+    # # x = tf.expand_dims(x,-1)
+    # # x = Reshape((x_train.shape[1],x_train.shape[2],x_train.shape[3], 1))(x)
+
+    # #x = Conv3D(filters = 1, kernel_size = (1, 1, 1), strides=(1, 1, 1), activation='relu', padding='same')(x)
+
+    # CNN = Model(inputs=input, outputs=x,name="CNN")
+    # CNN.compile(optimizer='adam', loss='BinaryCrossentropy')
+    # CNN.summary()
+
+    # model = CNN
+
+    # new alt with even larger kernels
+    input = Input(shape=(x_train.shape[1],x_train.shape[2],x_train.shape[3], 1))
+
+    x = Conv3D(filters = 60, kernel_size = (21, 21, 21), strides=(1, 1, 1), activation='relu', padding='same')(input) 
+    x = MaxPool3D((2,2,2),padding='same')(x)
+
+    x = Conv3D(filters = 30, kernel_size = (15, 15, 15), strides=(1, 1, 1), activation='relu', padding='same')(x) 
+    x = MaxPool3D((2,2,2),padding='same')(x)
+
+    x = Conv3D(filters = 20, kernel_size = (11, 11, 11), strides=(1, 1, 1), activation='relu', padding='same')(x) 
+    x = MaxPool3D((2,2,2),padding='same')(x)
+
+    x = Conv3D(filters = 10, kernel_size = (9, 9, 3), strides=(1, 1, 1), activation='relu', padding='same')(x)
+    x = MaxPool3D((1,2,2),padding='same')(x)
+
+    #x = Conv3D(filters = 5, kernel_size = (3, 3, 3), strides=(1, 1, 1), activation='relu', padding='same')(x)
+    #x = MaxPool3D((2,2,2),padding='same')(x)
+
+    x = Conv3DTranspose(5,kernel_size=(3,3,3), strides=(1, 1, 1))(x)
+
+    x = Conv3DTranspose(1,kernel_size=(9,9,3), strides=(1, 1, 1))(x)
+
+    x = Conv3DTranspose(1,kernel_size=(11,11,11), strides=(1, 1, 1))(x)
+
+    k1 = x_train.shape[1] - x.shape[1] + 1
+    k2 = x_train.shape[2] - x.shape[2] + 1
+    k3 = x_train.shape[3] - x.shape[3] + 1 
+
+    x = Conv3DTranspose(1,kernel_size=(k1,k2,k3), strides=(1, 1, 1))(x) # this should work always as long as strides are 1,1,1
+
+    CNN = Model(inputs=input, outputs=x,name="CNN")
+    CNN.compile(optimizer='adam', loss='BinaryCrossentropy')
+    CNN.summary()
+
+    model = CNN
 
 
 if type == 'cnn_lstm':
