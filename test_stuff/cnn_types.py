@@ -32,7 +32,7 @@ from tensorflow.python.keras.layers.normalization import BatchNormalization
 
 from data_processing import process
 filename = 'gear_dataset.csv'
-rows = 50000   # 500  000 highest i can go without killing gpu for cnn_lstm 
+rows = 5000   # 500  000 highest i can go without killing gpu for cnn_lstm 
 data_with_attack, AttackIDs, labeled_data = process(filename,rows,no_attack_packets=False) 
 print(f'including attack data: {data_with_attack.shape}')
 
@@ -56,7 +56,7 @@ from prepare_data_cube import make_cubes
 #type = 'timeDist_cnn'
 #type = 'cnn_lstm'
 type = 'cnn'
-x_test,x_train,xA,last_attack_timestep = make_cubes(IDs,AttackIDs,data,data_with_attack,n_timesteps,type,labeled_data)
+x_test,x_train,xA,last_attack_timestep,_ = make_cubes(IDs,AttackIDs,data,data_with_attack,n_timesteps,type,labeled_data)
 
 if type == 'cnn':
     # input = Input(shape=(x_train.shape[1],x_train.shape[2],x_train.shape[3], 1))
@@ -320,10 +320,10 @@ if type == 'cnn':
     # another alt
     input = Input(shape=(x_train.shape[1],x_train.shape[2],x_train.shape[3], 1))
 
-    x = Conv3D(filters = 5, kernel_size = (40, 40, 40), strides=(1, 1, 1), activation='relu', padding='same')(input) 
-    x = MaxPool3D((2,2,2),padding='same')(x)
+   # x = Conv3D(filters = 5, kernel_size = (40, 40, 40), strides=(1, 1, 1), activation='relu', padding='same')(input) 
+    # x = MaxPool3D((2,2,2),padding='same')(x)
 
-    x = Conv3D(filters = 5, kernel_size = (21, 21, 21), activation='relu', strides=(1, 1, 1), padding='same')(x) 
+    x = Conv3D(filters = 5, kernel_size = (21, 21, 21), activation='relu', strides=(1, 1, 1), padding='same')(input) 
     x = MaxPool3D((2,2,2),padding='same')(x)
 
     x = Conv3D(filters = 3, kernel_size = (15, 15, 15),  activation='relu', strides=(1, 1, 1), padding='same')(x) 
@@ -358,7 +358,7 @@ if type == 'cnn':
 
     model = CNN
     # without batchnorm: 0.5028
-    # with batch norm in middle: es 0.4705 (maxpool,relu)
+    # with batch norm in middle: es 0.4705 (maxpool,relu) 0.46 on 50 000
     # with batch norm everywhere: worse than just in middle
     # with batch norm in middle: es 2.48 (avgpool,relu)
     # with batch norm in middle: 0.4722  (maxpool, sigmoid) 
@@ -393,11 +393,14 @@ if type == 'cnn_lstm':
     x = Conv2D(filters = 60, kernel_size = (4, 4), activation='relu', padding='same')(input) 
     x = MaxPool2D((2,2),padding='valid')(x)
 
-    x = Conv2D(filters = n_timesteps, kernel_size = (2, 2), activation='relu', padding='same')(x)
+    x = Conv2D(filters = n_timesteps, kernel_size = (2, 2), padding='same')(x)
+    x = BatchNormalization()(x)
+    x = Activation('relu')(x)
     x = MaxPool2D((2, 2))(x)
 
     x = Reshape((n_timesteps,64))(x)
     # LSTM [samples,timesteps,features]
+    
     x = LSTM(64,return_sequences = True)(x)
     x = LSTM(128, return_sequences = True)(x)
 
@@ -413,6 +416,7 @@ if type == 'cnn_lstm':
     CNN.summary()
 
     model = CNN
+    # 0.5379 w batch norm
 
 
 if type == 'timeDist_cnn':
@@ -491,4 +495,4 @@ e = time.time()
 
 print(f'training time = {e-s} seconds')
 
-model.save('CNN_LSTM_monday')
+model.save('CNN_LSTM_friday')

@@ -50,17 +50,23 @@ from prepare_data_cube import make_cubes
 #type = 'cnn_lstm'
 type = 'cnn'
 
-x_test,x_train,xA,lastA = make_cubes(IDs,AttackIDs,data,data_with_attack,n_timesteps,type,labeled_data)
+x_test,x_train,xA,lastA,samples = make_cubes(IDs,AttackIDs,data,data_with_attack,n_timesteps,type,labeled_data)
 
+# attack = labeled_data[labeled_data['Attack'] == 'T'].copy()
+# attack_ind = attack.index
+# attack_ind = attack_ind[attack_ind<lastA] # why not <=
+# attack_samples = np.floor(attack_ind/n_timesteps)
+# attack_samples = np.unique( attack_samples) # all samples that contain attack packets
+# attack_samples = attack_samples.astype(int)
 attack = labeled_data[labeled_data['Attack'] == 'T'].copy()
 attack_ind = attack.index
-attack_ind = attack_ind[attack_ind<lastA] # why not <=
-attack_samples = np.floor(attack_ind/n_timesteps)
-attack_samples = np.unique( attack_samples) # all samples that contain attack packets
-attack_samples = attack_samples.astype(int)
+attack_ind = attack_ind[attack_ind<=lastA]
 
+contains_attack = [np.any(np.in1d(x, attack_ind)) for x in samples]
+#attack_samples = xA[contains_attack]
+attack_samples = contains_attack
 # run net and save parameters
-modelname = 'CNN_LSTM_monday'
+modelname = 'CNN_LSTM_friday'
 #modelname = '3dCNN_05-18_trained_on_50000_r'
 CNN =  keras.models.load_model(modelname)
 
