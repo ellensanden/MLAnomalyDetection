@@ -27,6 +27,38 @@ from keras.layers import Conv3DTranspose
 from keras.callbacks import EarlyStopping
 import numpy as np
 from numpy import array
+import pandas as pd
+
+# OWN DATA
+# nRows = 50000
+n_timesteps = 40
+
+# filename = 'normal_and_attack_data.csv'
+    
+# df = pd.read_csv(filename, nrows = nRows, sep=',')
+
+# #bin column names
+# bin_data_column_names = []
+# for j in range(64):
+#     bin_data_column_names.append('bin' + str(j))
+    
+# # Få binärvärderna av de första 5 datapunkterna i en dataframe
+# temporary_df = df[bin_data_column_names]
+
+# # The values of these binary arrays
+# temporary_df_values = temporary_df.values
+
+# data = np.array(temporary_df_values)
+# data_with_attack = data.copy()
+# data = data[df['Attack'] == 'No']
+
+# IDs = df['ID']
+# AttackIDs = IDs.copy()
+# IDs = IDs[df['Attack'] == 'No']
+
+# labeled_data = df.copy()
+
+#GEAR DATA
 
 from data_processing import process
 filename = 'gear_dataset.csv'
@@ -40,7 +72,6 @@ print(f'normal data: {data.shape}')
 n_rows = data.shape[0] 
 n_features = data.shape[1]
 
-n_timesteps = 40
 
 labeled_data = labeled_data.reset_index(drop=True)
 
@@ -50,7 +81,7 @@ from prepare_data_cube import make_cubes
 #type = 'cnn_lstm'
 type = 'cnn'
 
-x_test,x_train,xA,lastA,samples = make_cubes(IDs,AttackIDs,data,data_with_attack,n_timesteps,type,labeled_data)
+x_test,x_train,xA,lastA,samples = make_cubes(IDs,AttackIDs,data,data_with_attack,n_timesteps,type)
 
 # attack = labeled_data[labeled_data['Attack'] == 'T'].copy()
 # attack_ind = attack.index
@@ -59,14 +90,15 @@ x_test,x_train,xA,lastA,samples = make_cubes(IDs,AttackIDs,data,data_with_attack
 # attack_samples = np.unique( attack_samples) # all samples that contain attack packets
 # attack_samples = attack_samples.astype(int)
 attack = labeled_data[labeled_data['Attack'] == 'T'].copy()
+#attack = labeled_data[labeled_data['Attack'] == 'Yes'].copy()
 attack_ind = attack.index
 attack_ind = attack_ind[attack_ind<=lastA]
 
 contains_attack = [np.any(np.in1d(x, attack_ind)) for x in samples]
-#attack_samples = xA[contains_attack]
 attack_samples = contains_attack
+print(f'number of attack samples {len(attack_samples)}')
 # run net and save parameters
-modelname = 'CNN_LSTM_friday'
+modelname = 'checkpoint'
 #modelname = '3dCNN_05-18_trained_on_50000_r'
 CNN =  keras.models.load_model(modelname)
 
