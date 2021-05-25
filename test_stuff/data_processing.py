@@ -9,8 +9,8 @@ def process(datafile,rows,no_attack_packets):
     
     #
     if rows == 'slice':
-        df = pd.read_csv(datafile,nrows= 70000, sep=',', names=colnames) #these are for slicing unseen data
-        df = df.iloc[50000:70000,:]                                     #these are for slicing unseen data
+        df = pd.read_csv(datafile,nrows= 100000, sep=',', names=colnames) #these are for slicing unseen data
+        df = df.iloc[50000:100000,:]                                     #these are for slicing unseen data
     else: 
         nRows = rows
         df = pd.read_csv(datafile, nrows = nRows, sep=',', names=colnames)

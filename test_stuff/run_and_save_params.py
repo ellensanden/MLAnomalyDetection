@@ -27,7 +27,7 @@ from keras.layers import Conv3DTranspose
 from keras.callbacks import EarlyStopping
 import numpy as np
 from numpy import array
-import pandas as pd
+import pandas as pd 
 
 # OWN DATA
 # nRows = 50000
@@ -98,7 +98,7 @@ contains_attack = [np.any(np.in1d(x, attack_ind)) for x in samples]
 attack_samples = contains_attack
 print(f'number of attack samples {len(attack_samples)}')
 # run net and save parameters
-modelname = 'checkpoint'
+modelname = 'ConvLSTM'
 #modelname = '3dCNN_05-18_trained_on_50000_r'
 CNN =  keras.models.load_model(modelname)
 
