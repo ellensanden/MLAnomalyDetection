@@ -98,7 +98,7 @@ contains_attack = [np.any(np.in1d(x, attack_ind)) for x in samples]
 attack_samples = contains_attack
 print(f'number of attack samples {len(attack_samples)}')
 # run net and save parameters
-modelname = 'ConvLSTM'
+modelname = 'checkpoint'
 #modelname = '3dCNN_05-18_trained_on_50000_r'
 CNN =  keras.models.load_model(modelname)
 

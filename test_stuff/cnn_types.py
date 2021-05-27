@@ -87,7 +87,8 @@ from prepare_data_cube import make_cubes
 type = 'cnn'
 
 x_test,x_train,xA,last_attack_timestep,_ = make_cubes(IDs,AttackIDs,data,data_with_attack,n_timesteps,type)
-type = 'convLSTM' #val-loss = 0.4173
+type = 'convLSTM' #val-loss = 0.4173 (not bidirectional)
+                  # val-loss = (bidirectional)
 if type == 'cnn':
     # input = Input(shape=(x_train.shape[1],x_train.shape[2],x_train.shape[3], 1))
 
@@ -721,58 +722,95 @@ if type == 'convLSTM':
 
     # model = CNN
 
+    # input = Input(shape=(x_train.shape[1],x_train.shape[2],x_train.shape[3],1))
+
+
+    # x = ConvLSTM2D(filters = 2, kernel_size = (11, 9),strides=(1, 1),return_sequences=True)(input)
+    # x, state_h, state_c = ConvLSTM2D(filters = 2, kernel_size = (1, 1),strides=(1, 1),return_sequences=True,return_state=True)(x)
+    # x = ConvLSTM2D(filters = 2, kernel_size = (1, 1),strides=(1, 1),return_sequences=True)(x, initial_state = [state_h,state_c])
+
+    # x = ConvLSTM2D(filters = 2, kernel_size = (9, 3),strides=(2, 1),return_sequences=True)(x)
+    # x, state_h, state_c = ConvLSTM2D(filters = 2, kernel_size = (1, 1),strides=(1, 1),return_sequences=True,return_state=True)(x)
+    # x = ConvLSTM2D(filters = 2, kernel_size = (1, 1),strides=(1, 1),return_sequences=True)(x, initial_state = [state_h,state_c])
+
+    # x = ConvLSTM2D(filters = 2, kernel_size = (5, 3),strides=(2, 1),return_sequences=True)(x)
+    # x, state_h, state_c = ConvLSTM2D(filters = 2, kernel_size = (1, 1),strides=(1, 1),return_sequences=True,return_state=True)(x)
+    # x = ConvLSTM2D(filters = 2, kernel_size = (1, 1),strides=(1, 1),return_sequences=True)(x, initial_state = [state_h,state_c])
+
+    # x = ConvLSTM2D(filters = 2, kernel_size = (3, 1),strides=(1, 1),return_sequences=True)(x)
+    # x, state_h, state_c = ConvLSTM2D(filters = 2, kernel_size = (1, 1),strides=(1, 1),return_sequences=True,return_state=True)(x)
+    # x = ConvLSTM2D(filters = 2, kernel_size = (1, 1),strides=(1, 1),return_sequences=True)(x, initial_state = [state_h,state_c])
+
+    # x = ConvLSTM2D(filters = 2, kernel_size = (3, 1),strides=(1, 1),return_sequences=True)(x)
+    # x, state_h, state_c = ConvLSTM2D(filters = 2, kernel_size = (1, 1),strides=(1, 1),return_sequences=True,return_state=True)(x)
+    # x = ConvLSTM2D(filters = 2, kernel_size = (1, 1),strides=(1, 1),return_sequences=True)(x, initial_state = [state_h,state_c])
+    # print(x.shape)
+    # k1 = x_train.shape[1] - x.shape[1] + 1 
+    # k2 = x_train.shape[2]-50 - x.shape[2] + 1
+    # k3 = x_train.shape[3]-12 - x.shape[3] + 1 
+
+    # x = Conv3DTranspose(2,kernel_size=(k1,k2,k3), strides=(1, 1, 1))(x)
+
+    # k1 = x_train.shape[1] - x.shape[1] + 1 
+    # k2 = x_train.shape[2]-40 - x.shape[2] + 1
+    # k3 = x_train.shape[3]-12 - x.shape[3] + 1 
+
+    # x = Conv3DTranspose(2,kernel_size=(k1,k2,k3), strides=(1, 1, 1))(x)
+
+    # k1 = x_train.shape[1] - x.shape[1] + 1 
+    # k2 = x_train.shape[2]-30 - x.shape[2] + 1
+    # k3 = x_train.shape[3]-10 - x.shape[3] + 1 
+
+    # x = Conv3DTranspose(2,kernel_size=(k1,k2,k3), strides=(1, 1, 1))(x)
+
+    # k1 = x_train.shape[1] - x.shape[1] + 1 
+    # k2 = x_train.shape[2]-20 - x.shape[2] + 1
+    # k3 = x_train.shape[3]-7 - x.shape[3] + 1 
+
+    # x = Conv3DTranspose(2,kernel_size=(k1,k2,k3), strides=(1, 1, 1))(x) # this should work always as long as strides are 1,1,1
+
+    # k1 = x_train.shape[1] - x.shape[1] + 1 
+    # k2 = x_train.shape[2]-10 - x.shape[2] + 1
+    # k3 = x_train.shape[3]-5 - x.shape[3] + 1 
+
+    # x = Conv3DTranspose(2,kernel_size=(k1,k2,k3), strides=(1, 1, 1))(x) # this should work always as long as strides are 1,1,1
+
+    # k1 = x_train.shape[1] - x.shape[1] + 1 
+    # k2 = x_train.shape[2] - x.shape[2] + 1
+    # k3 = x_train.shape[3] - x.shape[3] + 1 
+
+    # x = Conv3DTranspose(1,kernel_size=(k1,k2,k3), strides=(1, 1, 1))(x) # this should work always as long as strides are 1,1,1
+
+    # CNN = Model(inputs=input, outputs=x,name="CNN")
+    # CNN.compile(optimizer='adam', loss='BinaryCrossentropy')
+    # CNN.summary()
+
+    # model = CNN
+
+
+    # BIDIRECTIONAL
+    from keras.layers import Bidirectional
+
     input = Input(shape=(x_train.shape[1],x_train.shape[2],x_train.shape[3],1))
 
+    x = Bidirectional(ConvLSTM2D(filters = 2, kernel_size = (11, 9),strides=(2, 2),return_sequences=True,return_state=False),merge_mode='sum')(input)
 
-    x = ConvLSTM2D(filters = 2, kernel_size = (11, 9),strides=(1, 1),return_sequences=True)(input)
-    x, state_h, state_c = ConvLSTM2D(filters = 2, kernel_size = (1, 1),strides=(1, 1),return_sequences=True,return_state=True)(x)
-    x = ConvLSTM2D(filters = 2, kernel_size = (1, 1),strides=(1, 1),return_sequences=True)(x, initial_state = [state_h,state_c])
+    x, state_h1, state_c1, state_h2, state_c2 = Bidirectional(ConvLSTM2D(filters = 2, kernel_size = (1, 1),strides=(1, 1),return_sequences=True,return_state=True), merge_mode='sum')(x)
 
-    x = ConvLSTM2D(filters = 2, kernel_size = (9, 3),strides=(2, 1),return_sequences=True)(x)
-    x, state_h, state_c = ConvLSTM2D(filters = 2, kernel_size = (1, 1),strides=(1, 1),return_sequences=True,return_state=True)(x)
-    x = ConvLSTM2D(filters = 2, kernel_size = (1, 1),strides=(1, 1),return_sequences=True)(x, initial_state = [state_h,state_c])
+    x = Bidirectional(ConvLSTM2D(filters = 2, kernel_size = (1, 1),strides=(1, 1),return_sequences=True),  merge_mode='sum')(x, initial_state = [state_h1,state_c1, state_h2, state_c2])
 
-    x = ConvLSTM2D(filters = 2, kernel_size = (5, 3),strides=(2, 1),return_sequences=True)(x)
-    x, state_h, state_c = ConvLSTM2D(filters = 2, kernel_size = (1, 1),strides=(1, 1),return_sequences=True,return_state=True)(x)
-    x = ConvLSTM2D(filters = 2, kernel_size = (1, 1),strides=(1, 1),return_sequences=True)(x, initial_state = [state_h,state_c])
+    x = Bidirectional(ConvLSTM2D(filters = 2, kernel_size = (9, 3),strides=(2, 1),return_sequences=True,return_state=False),merge_mode='sum')(x)
 
-    x = ConvLSTM2D(filters = 2, kernel_size = (3, 1),strides=(1, 1),return_sequences=True)(x)
-    x, state_h, state_c = ConvLSTM2D(filters = 2, kernel_size = (1, 1),strides=(1, 1),return_sequences=True,return_state=True)(x)
-    x = ConvLSTM2D(filters = 2, kernel_size = (1, 1),strides=(1, 1),return_sequences=True)(x, initial_state = [state_h,state_c])
+    x, state_h1, state_c1, state_h2, state_c2 = Bidirectional(ConvLSTM2D(filters = 2, kernel_size = (1, 1),strides=(1, 1),return_sequences=True,return_state=True),merge_mode='sum')(x)
 
-    x = ConvLSTM2D(filters = 2, kernel_size = (3, 1),strides=(1, 1),return_sequences=True)(x)
-    x, state_h, state_c = ConvLSTM2D(filters = 2, kernel_size = (1, 1),strides=(1, 1),return_sequences=True,return_state=True)(x)
-    x = ConvLSTM2D(filters = 2, kernel_size = (1, 1),strides=(1, 1),return_sequences=True)(x, initial_state = [state_h,state_c])
-    print(x.shape)
-    k1 = x_train.shape[1] - x.shape[1] + 1 
-    k2 = x_train.shape[2]-50 - x.shape[2] + 1
-    k3 = x_train.shape[3]-12 - x.shape[3] + 1 
+    x = Bidirectional(ConvLSTM2D(filters = 2, kernel_size = (1, 1),strides=(1, 1),return_sequences=True),merge_mode='sum' )(x, initial_state = [state_h1, state_c1, state_h2, state_c2])
 
-    x = Conv3DTranspose(2,kernel_size=(k1,k2,k3), strides=(1, 1, 1))(x)
+    x = Bidirectional(ConvLSTM2D(filters = 2, kernel_size = (3, 1),strides=(1, 1),return_sequences=True),merge_mode='sum')(x)
 
-    k1 = x_train.shape[1] - x.shape[1] + 1 
-    k2 = x_train.shape[2]-40 - x.shape[2] + 1
-    k3 = x_train.shape[3]-12 - x.shape[3] + 1 
+    x, state_h1, state_c1, state_h2, state_c2 = Bidirectional(ConvLSTM2D(filters = 2, kernel_size = (1, 1),strides=(1, 1),return_sequences=True,return_state=True), merge_mode = 'sum')(x)
 
-    x = Conv3DTranspose(2,kernel_size=(k1,k2,k3), strides=(1, 1, 1))(x)
+    x = Bidirectional(ConvLSTM2D(filters = 2, kernel_size = (1, 1),strides=(1, 1),return_sequences=True), merge_mode='sum')(x, initial_state = [state_h1, state_c1, state_h2, state_c2])
 
-    k1 = x_train.shape[1] - x.shape[1] + 1 
-    k2 = x_train.shape[2]-30 - x.shape[2] + 1
-    k3 = x_train.shape[3]-10 - x.shape[3] + 1 
-
-    x = Conv3DTranspose(2,kernel_size=(k1,k2,k3), strides=(1, 1, 1))(x)
-
-    k1 = x_train.shape[1] - x.shape[1] + 1 
-    k2 = x_train.shape[2]-20 - x.shape[2] + 1
-    k3 = x_train.shape[3]-7 - x.shape[3] + 1 
-
-    x = Conv3DTranspose(2,kernel_size=(k1,k2,k3), strides=(1, 1, 1))(x) # this should work always as long as strides are 1,1,1
-
-    k1 = x_train.shape[1] - x.shape[1] + 1 
-    k2 = x_train.shape[2]-10 - x.shape[2] + 1
-    k3 = x_train.shape[3]-5 - x.shape[3] + 1 
-
-    x = Conv3DTranspose(2,kernel_size=(k1,k2,k3), strides=(1, 1, 1))(x) # this should work always as long as strides are 1,1,1
 
     k1 = x_train.shape[1] - x.shape[1] + 1 
     k2 = x_train.shape[2] - x.shape[2] + 1
@@ -800,7 +838,7 @@ s = time.time()
 
 
 
-checkpoint_filepath = 'checkpoint'
+checkpoint_filepath = 'bidirectional'
 model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
     filepath=checkpoint_filepath,
     save_weights_only=False,
