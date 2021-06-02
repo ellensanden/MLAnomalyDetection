@@ -7,7 +7,7 @@ def make_cubes(IDs,AttackIDs,data,data_with_attack,n_timesteps,type):
 
         binaryIDs = np.zeros((len(IDs),16),dtype = int)
 
-        for x in range(len(IDs)):
+        for x in range(len(IDs)): 
             currentHex = IDs[x]
             currentBin = format(int(currentHex, base=16), "016b") 
             binaryIDs[x,:] = np.array(list(currentBin), dtype=int)

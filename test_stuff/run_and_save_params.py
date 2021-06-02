@@ -62,7 +62,7 @@ n_timesteps = 40
 
 from data_processing import process
 filename = 'gear_dataset.csv'
-rows = 'slice' 
+rows = 30000
 data_with_attack, AttackIDs, labeled_data = process(filename,rows,no_attack_packets=False) 
 print(f'including attack data: {data_with_attack.shape}')
 
@@ -98,7 +98,7 @@ contains_attack = [np.any(np.in1d(x, attack_ind)) for x in samples]
 attack_samples = contains_attack
 print(f'number of attack samples {len(attack_samples)}')
 # run net and save parameters
-modelname = 'checkpoint'
+modelname = 'bidirectional_withDense'
 #modelname = '3dCNN_05-18_trained_on_50000_r'
 CNN =  keras.models.load_model(modelname)
 

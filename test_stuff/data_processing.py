@@ -8,7 +8,7 @@ def process(datafile,rows,no_attack_packets):
 
     
     #
-    if rows == 'slice':
+    if rows == 'slice': 
         df = pd.read_csv(datafile,nrows= 70000, sep=',', names=colnames) #these are for slicing unseen data
         df = df.iloc[50000:70000,:]                                     #these are for slicing unseen data
     else: 
@@ -26,7 +26,7 @@ def process(datafile,rows,no_attack_packets):
     else:
         print(f'number of attack packets in data set = {len(attack)}')
 
-    #Drop DLC = 2 packets
+    #Drop DLC = 2 packetss
     dlc2 = df[df['DLC'] == 2]
     df.drop(dlc2.index, axis=0, inplace=True) #drop all dlc2 indexes
 

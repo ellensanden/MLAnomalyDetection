@@ -88,7 +88,8 @@ type = 'cnn'
 
 x_test,x_train,xA,last_attack_timestep,_ = make_cubes(IDs,AttackIDs,data,data_with_attack,n_timesteps,type)
 type = 'convLSTM' #val-loss = 0.4173 (not bidirectional)
-                  # val-loss = (bidirectional)
+                  # val-loss = 0.2214 (bidirectional)
+                  # bi with dense at the end: 0.1482
 if type == 'cnn':
     # input = Input(shape=(x_train.shape[1],x_train.shape[2],x_train.shape[3], 1))
 
@@ -817,13 +818,44 @@ if type == 'convLSTM':
     k3 = x_train.shape[3] - x.shape[3] + 1 
 
     x = Conv3DTranspose(1,kernel_size=(k1,k2,k3), strides=(1, 1, 1))(x) # this should work always as long as strides are 1,1,1
+    x = TimeDistributed(Dense(1, activation='sigmoid'))(x)
 
     CNN = Model(inputs=input, outputs=x,name="CNN")
     CNN.compile(optimizer='adam', loss='BinaryCrossentropy')
     CNN.summary()
 
     model = CNN
+    # input = Input(shape=(x_train.shape[1],x_train.shape[2],x_train.shape[3],1))
+    # #x = TimeDistributed(Dense(300, activation='sigmoid'))(input)
+    # #x = TimeDistributed(Dropout(0.2))(x)
+    # x = Bidirectional(ConvLSTM2D(filters = 2, kernel_size = (11, 9),strides=(1, 1),return_sequences=True,return_state=False),merge_mode='sum')(input)
 
+    # x, state_h1, state_c1, state_h2, state_c2 = Bidirectional(ConvLSTM2D(filters = 2, kernel_size = (1, 1),strides=(1, 1),return_sequences=True,return_state=True), merge_mode='sum')(x)
+
+    # x = Bidirectional(ConvLSTM2D(filters = 2, kernel_size = (1, 1),strides=(1, 1),return_sequences=True),  merge_mode='sum')(x, initial_state = [state_h1,state_c1, state_h2, state_c2])
+
+    # x = TimeDistributed(BatchNormalization())(x)
+
+    # x = Bidirectional(ConvLSTM2D(filters = 2, kernel_size = (9, 3),strides=(1, 1),return_sequences=True,return_state=False),merge_mode='sum')(x)
+
+    # x, state_h1, state_c1, state_h2, state_c2 = Bidirectional(ConvLSTM2D(filters = 2, kernel_size = (1, 1),strides=(1, 1),return_sequences=True,return_state=True),merge_mode='sum')(x)
+
+    # x = Bidirectional(ConvLSTM2D(filters = 2, kernel_size = (1, 1),strides=(1, 1),return_sequences=True),merge_mode='sum' )(x, initial_state = [state_h1, state_c1, state_h2, state_c2])
+
+
+
+    # k1 = x_train.shape[1] - x.shape[1] + 1 
+    # k2 = x_train.shape[2] - x.shape[2] + 1
+    # k3 = x_train.shape[3] - x.shape[3] + 1 
+
+    # x = Conv3DTranspose(1,kernel_size=(k1,k2,k3), strides=(1, 1, 1))(x) # this should work always as long as strides are 1,1,1
+    # x = TimeDistributed(Dense(10, activation='sigmoid'))(x)
+
+    # CNN = Model(inputs=input, outputs=x,name="CNN")
+    # CNN.compile(optimizer='adam', loss='BinaryCrossentropy')
+    # CNN.summary()
+
+    # model = CNN
 
 import time
 
@@ -838,7 +870,7 @@ s = time.time()
 
 
 
-checkpoint_filepath = 'bidirectional'
+checkpoint_filepath = 'bidirectional_withDense'
 model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
     filepath=checkpoint_filepath,
     save_weights_only=False,
@@ -846,9 +878,10 @@ model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
     mode='min',
     save_best_only=True)
 
-model.fit(x_train,x_train, validation_data=(x_test, x_test), epochs=5000, verbose=2, shuffle=False, batch_size = 100, callbacks = [es,model_checkpoint_callback])
+model.fit(x_train,x_train, validation_data=(x_test, x_test), epochs=5000, verbose=2, batch_size = 100, shuffle=False, callbacks = [es,model_checkpoint_callback])
 
 e = time.time()
 print(f'training time = {e-s} seconds')
 
-#model.save('CNN_LSTM_friday')
+#model.save('CNN_LSTM_friday') 
+# 

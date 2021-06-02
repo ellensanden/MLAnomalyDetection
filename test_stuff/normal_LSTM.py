@@ -1,11 +1,15 @@
 import numpy as np
 import pandas as pd
+# 20, no first dense, 2000 rows, 10 batch: 0.3845
+# 20, with first dense, 2000 rows, 10 batch: 0.1494
 
+# 40, no first dense, 2000 rows, 10 batch:
+# 40, with first dense, 2000 rows, 10 batch: 0.1072 (3000 rows: 0.2090)
 colnames = ["time", "ID", "DLC", "Data1", \
         "Data2", "Data3", "Data4", "Data5", "Data6", "Data7", "Data8", "Attack"]
 
-nRows = 10000 #number of rows that you want
-df = pd.read_csv('gear_dataset.csv', nrows = nRows, sep=',', names=colnames)
+#nRows = 1000000 #number of rows that you want
+df = pd.read_csv('gear_dataset.csv',nrows = 2000000, sep=',', names=colnames)
 
 uniqueIDs = df['ID'].unique() #26 for the entire dataset
 
@@ -18,7 +22,7 @@ dlc2 = df[df['DLC'] == 2]
 df.drop(dlc2.index, axis=0, inplace=True) #drop all dlc2 indexes
 
 #Pick an ID
-id_data= df[df['ID'] == '0140'].copy()
+#id_data= df[df['ID'] == '0140'].copy()
 id_data = df
 
 #Just use data values without time, Attack, ID and DLC right now
@@ -70,7 +74,6 @@ X_train_samples = overlapping_window(time_steps,20,a)
 X_train = storage[X_train_samples,:]
 X_train = np.squeeze(X_train)
 print(X_train.shape)
-
 X_reversed = np.flip(X_train,1)
 
 # best value so far on lstm tuning: 
@@ -86,24 +89,23 @@ X_reversed = np.flip(X_train,1)
 # tuner/round = 0
 
 n_samples = X_train.shape[0]
-time_steps = X_train.shape[1]
 n_features = X_train.shape[2]
-lstm_initializer = tf.keras.initializers.RandomUniform(minval=-0.89, maxval=0.07)
+lstm_initializer = tf.keras.initializers.RandomUniform(minval=-0.5, maxval=0.5)
 #opt = keras.optimizers.Adam(learning_rate=0.001)
 
 # define Encoder
 
 EncoderInputs = Input(shape=(time_steps,n_features))
 dense1 =Dense(256, activation='tanh')(EncoderInputs)
-dropout = Dropout(0.3)(dense1)
-lstm1 = LSTM(300,return_sequences=True,kernel_initializer =lstm_initializer, recurrent_initializer=lstm_initializer)(dropout)
-lstm2, state_h, state_c = LSTM(300,return_sequences=True,return_state=True,kernel_initializer =lstm_initializer, recurrent_initializer=lstm_initializer)(lstm1)
+dropout = Dropout(0.2)(dense1)
+lstm1 = LSTM(40,return_sequences=True,kernel_initializer =lstm_initializer, recurrent_initializer=lstm_initializer)(dropout)
+lstm2, state_h, state_c = LSTM(40,return_sequences=True,return_state=True,kernel_initializer =lstm_initializer, recurrent_initializer=lstm_initializer)(lstm1)
 encoder_states = [state_h, state_c]
 
 # define Decoder
   
-lstm3 =  LSTM(300,return_sequences=True,kernel_initializer =lstm_initializer, recurrent_initializer=lstm_initializer)(lstm2,initial_state=encoder_states)
-lstm4 = LSTM(300,return_sequences=True,kernel_initializer =lstm_initializer, recurrent_initializer=lstm_initializer)(lstm3)
+lstm3,state_h, state_c =  LSTM(40,return_sequences=True,return_state=True,kernel_initializer =lstm_initializer, recurrent_initializer=lstm_initializer)(lstm2,initial_state=encoder_states)
+lstm4 = LSTM(40,return_sequences=True,kernel_initializer =lstm_initializer, recurrent_initializer=lstm_initializer)(lstm3,initial_state = [state_h,state_c])
 dense2 = Dense(256, activation='sigmoid')(lstm4)
 output = Dense(n_features,activation= 'sigmoid')(dense2)
 
@@ -115,11 +117,19 @@ import time
 
 model = EncoderDecoder
 es= EarlyStopping(monitor='val_loss', mode='min', verbose=2, patience=10)
+train_size = int(np.floor(0.7*n_samples))
 
 s=time.time()
-history = model.fit(X_train[0:10,:,:], X_reversed[0:10,:,:], validation_data=(X_train[10:21,:,:], X_reversed[10:21,:,:]), epochs=1000, verbose=2, shuffle=False, callbacks = [es])
-e=time.time()
+checkpoint_filepath = 'LSTM_AE_20'
+model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
+    filepath=checkpoint_filepath,
+    save_weights_only=False,
+    monitor='val_loss',
+    mode='min',
+    save_best_only=True)
 
+model.fit(X_train[0:train_size,:,:], X_train[0:train_size,:,:], validation_data=(X_train[train_size:,:,:], X_train[train_size:,:,:]), epochs=5000, verbose=2, batch_size = 10, shuffle=False, callbacks = [es,model_checkpoint_callback])
+model.save('LSTM_AE_40')
+e = time.time()
+print(f'training time = {e-s} seconds')
 
-print(f'training time = {e-s} seconds') 
-model.save('normal_LSTM_model') 
