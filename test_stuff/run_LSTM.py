@@ -1,12 +1,12 @@
 import numpy as np
 import pandas as pd
 
-# seems a bit odd that there are more attack samples than normal
+#mean normal: 0.0209, mean attack: 0.0234 get same results with no overlap
 colnames = ["time", "ID", "DLC", "Data1", \
         "Data2", "Data3", "Data4", "Data5", "Data6", "Data7", "Data8", "Attack"]
 
-nRows = 10000 #number of rows that you want
-df = pd.read_csv('gear_dataset.csv', nrows = nRows, sep=',', names=colnames)
+#nRows = 2000000 #number of rows that you want
+df = pd.read_csv('gear_dataset.csv', sep=',', names=colnames)
 
 uniqueIDs = df['ID'].unique() #26 for the entire dataset
 
@@ -19,8 +19,8 @@ dlc2 = df[df['DLC'] == 2]
 df.drop(dlc2.index, axis=0, inplace=True) #drop all dlc2 indexes
 
 #Pick an ID
-#id_data= df[df['ID'] == '0140'].copy()
-id_data = df
+id_data= df[df['ID'] == '043f'].copy()
+#id_data = df
 
 #Just use data values without time, Attack, ID and DLC right now
 dataValues = id_data.drop(["time", "Attack", "ID", "DLC"], axis = 1).copy()
@@ -66,7 +66,7 @@ time_steps = 40
 n_rows = storage.shape[0]
 n_features = storage.shape[1]
 a = np.r_[0:n_rows]
-X_train_samples = overlapping_window(time_steps,20,a)
+X_train_samples = overlapping_window(time_steps,20,a) # 40 is no overlap
 X_train = storage[X_train_samples,:]
 X_train = np.squeeze(X_train)
 print(X_train.shape)
@@ -81,8 +81,9 @@ attack_samples = contains_attack
 print(f'number of attack samples {sum(attack_samples)}')
 no_attacks = ~np.array(contains_attack)
 
-# run net and save parameters
-modelname = 'LSTM_AE_20'
+# run net and save parameters 
+modelname = 'LSTM_autoencoder_all_rows_ID_043f'
+#modelname = 'LSTM_AE_128_one_ID_june'
 CNN =  keras.models.load_model(modelname)
 
 attack_cubes = X_train[attack_samples,:,:]
@@ -112,7 +113,7 @@ print(f'only attack: {true_attack_errors}')
 
 # get average for each sample cube 
 normal_errors = x_test-yHat_normal
-
+ 
 
 normal_errors = normal_errors.reshape(normal_errors.shape[0],normal_errors.shape[1]*normal_errors.shape[2])
 

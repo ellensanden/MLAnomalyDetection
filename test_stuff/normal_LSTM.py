@@ -8,8 +8,8 @@ import pandas as pd
 colnames = ["time", "ID", "DLC", "Data1", \
         "Data2", "Data3", "Data4", "Data5", "Data6", "Data7", "Data8", "Attack"]
 
-#nRows = 1000000 #number of rows that you want
-df = pd.read_csv('gear_dataset.csv',nrows = 2000000, sep=',', names=colnames)
+nRows = 1000000 #number of rows that you want
+df = pd.read_csv('gear_dataset.csv',nrows=nRows, sep=',', names=colnames)
 
 uniqueIDs = df['ID'].unique() #26 for the entire dataset
 
@@ -22,8 +22,8 @@ dlc2 = df[df['DLC'] == 2]
 df.drop(dlc2.index, axis=0, inplace=True) #drop all dlc2 indexes
 
 #Pick an ID
-#id_data= df[df['ID'] == '0140'].copy()
-id_data = df
+id_data= df[df['ID'] == '043f'].copy()
+#id_data = df
 
 #Just use data values without time, Attack, ID and DLC right now
 dataValues = id_data.drop(["time", "Attack", "ID", "DLC"], axis = 1).copy()
@@ -98,14 +98,16 @@ lstm_initializer = tf.keras.initializers.RandomUniform(minval=-0.5, maxval=0.5)
 EncoderInputs = Input(shape=(time_steps,n_features))
 dense1 =Dense(256, activation='tanh')(EncoderInputs)
 dropout = Dropout(0.2)(dense1)
-lstm1 = LSTM(40,return_sequences=True,kernel_initializer =lstm_initializer, recurrent_initializer=lstm_initializer)(dropout)
-lstm2, state_h, state_c = LSTM(40,return_sequences=True,return_state=True,kernel_initializer =lstm_initializer, recurrent_initializer=lstm_initializer)(lstm1)
+lstm1 = LSTM(128,return_sequences=True,kernel_initializer =lstm_initializer, recurrent_initializer=lstm_initializer)(dropout)
+lstm2, state_h, state_c = LSTM(128,return_sequences=True,return_state=True,kernel_initializer =lstm_initializer, recurrent_initializer=lstm_initializer)(lstm1)
 encoder_states = [state_h, state_c]
 
 # define Decoder
-  
-lstm3,state_h, state_c =  LSTM(40,return_sequences=True,return_state=True,kernel_initializer =lstm_initializer, recurrent_initializer=lstm_initializer)(lstm2,initial_state=encoder_states)
-lstm4 = LSTM(40,return_sequences=True,kernel_initializer =lstm_initializer, recurrent_initializer=lstm_initializer)(lstm3,initial_state = [state_h,state_c])
+  # should remove the state connection here
+#lstm3,state_h, state_c =  LSTM(20,return_sequences=True,return_state=True,kernel_initializer =lstm_initializer, recurrent_initializer=lstm_initializer)(lstm2,initial_state=encoder_states)
+#
+lstm3 = LSTM(128,return_sequences=True,kernel_initializer =lstm_initializer, recurrent_initializer=lstm_initializer)(lstm2,initial_state=encoder_states)
+lstm4 = LSTM(128,return_sequences=True,kernel_initializer =lstm_initializer, recurrent_initializer=lstm_initializer)(lstm3)
 dense2 = Dense(256, activation='sigmoid')(lstm4)
 output = Dense(n_features,activation= 'sigmoid')(dense2)
 
@@ -120,16 +122,16 @@ es= EarlyStopping(monitor='val_loss', mode='min', verbose=2, patience=10)
 train_size = int(np.floor(0.7*n_samples))
 
 s=time.time()
-checkpoint_filepath = 'LSTM_AE_20'
-model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
-    filepath=checkpoint_filepath,
-    save_weights_only=False,
-    monitor='val_loss',
-    mode='min',
-    save_best_only=True)
+# checkpoint_filepath = 'LSTM_AE_20_2mil_AllIds'
+# model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
+#     filepath=checkpoint_filepath,
+#     save_weights_only=False,
+#     monitor='val_loss',
+#     mode='min',
+#     save_best_only=True)
 
-model.fit(X_train[0:train_size,:,:], X_train[0:train_size,:,:], validation_data=(X_train[train_size:,:,:], X_train[train_size:,:,:]), epochs=5000, verbose=2, batch_size = 10, shuffle=False, callbacks = [es,model_checkpoint_callback])
-model.save('LSTM_AE_40')
+model.fit(X_train[0:train_size,:,:], X_train[0:train_size,:,:], validation_data=(X_train[train_size:,:,:], X_train[train_size:,:,:]), epochs=5000, verbose=2,  shuffle=False, callbacks = [es])
+model.save('LSTM_AE_128_one_ID_june')
 e = time.time()
 print(f'training time = {e-s} seconds')
-
+#batch_size = 100,

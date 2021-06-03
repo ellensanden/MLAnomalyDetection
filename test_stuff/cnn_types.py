@@ -72,7 +72,7 @@ print(f'normal data: {data.shape}')
 n_rows = data.shape[0] 
 n_features = data.shape[1]
 
-
+ 
 # labeled_data = labeled_data.reset_index(drop=True)
 # attack = labeled_data[labeled_data['Attack'] == 'T'].copy()
 # attack_ind = attack.index
@@ -82,12 +82,12 @@ n_features = data.shape[1]
 
 from prepare_data_cube import make_cubes
 
-#type = 'timeDist_cnn'
+type = 'timeDist_cnn'
 #type = 'cnn_lstm'
-type = 'cnn'
+#type = 'cnn'
 
 x_test,x_train,xA,last_attack_timestep,_ = make_cubes(IDs,AttackIDs,data,data_with_attack,n_timesteps,type)
-type = 'convLSTM' #val-loss = 0.4173 (not bidirectional)
+#type = 'convLSTM' #val-loss = 0.4173 (not bidirectional)
                   # val-loss = 0.2214 (bidirectional)
                   # bi with dense at the end: 0.1482
 if type == 'cnn':
@@ -870,7 +870,7 @@ s = time.time()
 
 
 
-checkpoint_filepath = 'bidirectional_withDense'
+checkpoint_filepath = 'TimeDistCNN_trained_on_50000'
 model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
     filepath=checkpoint_filepath,
     save_weights_only=False,
