@@ -1,4 +1,4 @@
-def make_cubes(IDs,AttackIDs,data,data_with_attack,n_timesteps,type):
+def make_cubes(IDs,data,n_timesteps,type):#(IDs,AttackIDs,data,data_with_attack,n_timesteps,type):
     # do cube with stream*64*ID
     import numpy as np
     from numpy import array
@@ -35,7 +35,7 @@ def make_cubes(IDs,AttackIDs,data,data_with_attack,n_timesteps,type):
     n_rows = data.shape[0]
     b = np.r_[0:n_rows]
     overlap = 5
-    n_samples,_ = overlapping_window(n_timesteps,overlap,b)
+    n_samples,samples = overlapping_window(n_timesteps,overlap,b)
 
     data = data[n_samples,:]
     data = np.squeeze(data)
@@ -65,43 +65,42 @@ def make_cubes(IDs,AttackIDs,data,data_with_attack,n_timesteps,type):
 
 
     # normal and attack data
-    n_rows = data_with_attack.shape[0]
-    b = np.r_[0:n_rows]
+    # n_rows = data_with_attack.shape[0]
+    # b = np.r_[0:n_rows]
 
-    n_samples,samples = overlapping_window(n_timesteps,overlap,b)
-    data_with_attack = data_with_attack[n_samples,:]
-    data_with_attack = np.squeeze(data_with_attack)
+    # n_samples,samples = overlapping_window(n_timesteps,overlap,b)
+    # data_with_attack = data_with_attack[n_samples,:]
+    # data_with_attack = np.squeeze(data_with_attack)
     
-    AttackIDs = AttackIDs.reset_index(drop=True)
-    Attackid = convert_to_binaryIDs(AttackIDs) 
-    Attackid = Attackid[n_samples,:]
-    Attackid = np.squeeze(Attackid)
+    # AttackIDs = AttackIDs.reset_index(drop=True)
+    # Attackid = convert_to_binaryIDs(AttackIDs) 
+    # Attackid = Attackid[n_samples,:]
+    # Attackid = np.squeeze(Attackid)
 
-    ID_matrixA =  array([[Attackid],]*data_with_attack.shape[1])
-    ID_matrixA = np.squeeze(ID_matrixA)
-    ID_matrixA = ID_matrixA.transpose(1,0,2)
+    # ID_matrixA =  array([[Attackid],]*data_with_attack.shape[1])
+    # ID_matrixA = np.squeeze(ID_matrixA)
+    # ID_matrixA = ID_matrixA.transpose(1,0,2)
     
-    dataCubeA = np.zeros((data_with_attack.shape[0],data_with_attack.shape[1],Attackid.shape[1]+1))
-    dataCubeA[:,:,1:] = ID_matrixA
-    dataCubeA[:,:,0] = data_with_attack
+    # dataCubeA = np.zeros((data_with_attack.shape[0],data_with_attack.shape[1],Attackid.shape[1]+1))
+    # dataCubeA[:,:,1:] = ID_matrixA
+    # dataCubeA[:,:,0] = data_with_attack
 
-    n_attack_samples = int(np.floor(dataCubeA.shape[0]/n_timesteps))
-    last_attack_timestep = n_attack_samples*n_timesteps
+    # n_attack_samples = int(np.floor(dataCubeA.shape[0]/n_timesteps))
+    # last_attack_timestep = n_attack_samples*n_timesteps
     
-    print(f'last time step = {last_timestep}, last attack time step = {last_attack_timestep}')
-    xA = dataCubeA[0:last_attack_timestep,:,:]
+    # print(f'last time step = {last_timestep}, last attack time step = {last_attack_timestep}')
+    # xA = dataCubeA[0:last_attack_timestep,:,:]
 
     if type == 'cnn':
-        print(f'x.shape = {x.shape}, n_normal_samples = {n_normal_samples}, n_timesteps = {n_timesteps},dataCube.shape[1] = {dataCube.shape[1] },dataCube.shape[2]= {dataCube.shape[2]} ')
         x = x.reshape(n_normal_samples,n_timesteps,dataCube.shape[1],dataCube.shape[2],1) # does this give correct results?
         x_train = x[0:train_size,:,:,:,:]
         x_test = x[train_size:,:,:,:,:]
 
-        xA = xA.reshape(n_attack_samples,n_timesteps,dataCubeA.shape[1],dataCubeA.shape[2],1)
+        #xA = xA.reshape(n_attack_samples,n_timesteps,dataCubeA.shape[1],dataCubeA.shape[2],1)
 
-        print(f'x_test shape = {x_test.shape}, x_train shape = {x_train.shape}, with attack = {xA.shape}')
+        print(f'x_test shape = {x_test.shape}, x_train shape = {x_train.shape}')#, with attack = {xA.shape}')
 
-        return x_test,x_train,xA,last_attack_timestep,samples
+        return x_test,x_train,samples #,xA,last_attack_timestep,
 
     # for cnn lstm
     if type == 'cnn_lstm':
@@ -110,11 +109,11 @@ def make_cubes(IDs,AttackIDs,data,data_with_attack,n_timesteps,type):
         x_train = x[0:train_size,:,:,:]
         x_test = x[train_size:,:,:,:]
 
-        xA = xA.reshape(n_attack_samples,dataCubeA.shape[1],dataCubeA.shape[2],n_timesteps)
+        #xA = xA.reshape(n_attack_samples,dataCubeA.shape[1],dataCubeA.shape[2],n_timesteps)
         
-        print(f'x_test shape = {x_test.shape}, x_train shape = {x_train.shape}, with attack = {xA.shape}')
+        print(f'x_test shape = {x_test.shape}, x_train shape = {x_train.shape}')#, with attack = {xA.shape}')
 
-        return x_test,x_train,xA,last_attack_timestep,samples
+        return x_test,x_train,samples #xA,last_attack_timestep,
     
 
     # for time dist cnn 
@@ -124,13 +123,13 @@ def make_cubes(IDs,AttackIDs,data,data_with_attack,n_timesteps,type):
         x_train = x[0:train_size,:,:,:]
         x_test = x[train_size:,:,:,:]
         
-        xA = xA.reshape(n_attack_samples,n_timesteps,dataCubeA.shape[1],dataCubeA.shape[2],1)
+       # xA = xA.reshape(n_attack_samples,n_timesteps,dataCubeA.shape[1],dataCubeA.shape[2],1)
 
-        print(f'x_test shape = {x_test.shape}, x_train shape = {x_train.shape}, with attack = {xA.shape}')
+        print(f'x_test shape = {x_test.shape}, x_train shape = {x_train.shape}')#, with attack = {xA.shape}')
 
-        return x_test,x_train,xA,last_attack_timestep,samples
+        return x_test,x_train,samples#xA,last_attack_timestep,samples
     
 
 
-    return x_test,x_train,xA,last_attack_timestep,samples
+    return x_test,x_train, samples#,xA,last_attack_timestep,samples
 
