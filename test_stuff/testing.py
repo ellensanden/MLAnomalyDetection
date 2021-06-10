@@ -39,16 +39,17 @@ val_split = np.array_split(range(allRowsVal), n_steps)
 
 #type = 'timeDist_cnn'
 #type = 'cnn_lstm'
-type = '3dCNN'
+#type = '3dCNN'
 #type = 'cannolo_LSTM'
 #type = 'bi_convLSTM'
+type = 'conv-lstm'
 model = make_model(type)
 #n_timesteps = 40
  
 overlap = 20
 
 es = EarlyStopping(monitor='val_loss', mode='min', verbose=0, patience=10)
-checkpoint_filepath = '3dCNN_final'
+checkpoint_filepath = '2d_cnn_lstm_final'   # MISSA INTE ATT ÄNDRA!!!!!!!!!!!
 model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
     filepath=checkpoint_filepath,
     save_weights_only=False,
@@ -57,6 +58,7 @@ model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
     save_best_only=True)
 
 for y in range(n_steps):
+    print(f'{y} of {n_steps}')
     training_ind = training_split[y]
     val_ind = val_split[y]
     
@@ -73,8 +75,7 @@ for y in range(n_steps):
     #x_val = LSTM_data(val_data,overlap)
     x_train,_ = make_cubes_cont(t_IDs,training_data,40,'cnn') 
     x_val,_ = make_cubes_cont(v_IDs,val_data,40,'cnn') 
-    #model.fit(x,x, epochs=2, verbose=2, batch_size = 1, shuffle=False)
-    model.fit(x_train,x_train, validation_data=(x_val, x_val), epochs=100, verbose=2, batch_size = 100, shuffle=False, callbacks = [es,model_checkpoint_callback])#,model_checkpoint_callback])
+    model.fit(x_train,x_train, validation_data=(x_val, x_val), epochs=100, verbose=2, batch_size = 100, shuffle=False, callbacks = [es,model_checkpoint_callback])
 
 #model.save('testing_this')
 
