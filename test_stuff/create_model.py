@@ -17,6 +17,7 @@ def make_model(type):
     from keras.layers import Reshape
     from keras.layers import MaxPool2D
     from keras.layers import Conv2DTranspose
+    from keras.layers import Permute
 
     print(type)
 
@@ -159,13 +160,39 @@ def make_model(type):
         k2 = 64 - x.shape[2] + 1
         k3 = 17 - x.shape[3] + 1 
 
-        x = Conv3DTranspose(1,kernel_size=(k1,k2,k3), strides=(1, 1, 1),activation='sigmoid')(x) # this should work always as long as strides are 1,1,1
+        x = Conv3DTranspose(1,kernel_size=(k1,k2,k3), strides=(1, 1, 1),activation='sigmoid')(x) 
         CNN = Model(inputs=input, outputs=x,name="CNN")
         CNN.compile(optimizer='adam', loss='BinaryCrossentropy')
         CNN.summary()
 
         model = CNN
-       
+    elif type == 'timedist_cnn_lstm':
+        input = Input(shape=(40, 64, 17, 1))
+
+        x = TimeDistributed(Conv2D(filters = 5, kernel_size = (21, 11), activation='relu', padding='same'))(input) 
+        x = TimeDistributed(MaxPool2D((2,2),padding='valid'))(x)
+
+        x = TimeDistributed(Conv2D(filters = 5, kernel_size = (11, 3), padding='same'))(x)
+        x = TimeDistributed(BatchNormalization())(x)
+        x = TimeDistributed(Activation('relu'))(x)
+        x = TimeDistributed(MaxPool2D((2,2)))(x)
+
+        x = Reshape((40,-1))(x)
+        x = LSTM(64,return_sequences = True)(x)
+        x,h,c = LSTM(64,return_sequences = True,return_state=True)(x)
+        x = LSTM(64,return_sequences = True)(x,initial_state=[h,c])
+        x = LSTM(128, return_sequences = True)(x)
+
+        x = TimeDistributed(Reshape((64,2,1)))(x)
+        x = TimeDistributed(Conv2DTranspose(filters = 5, kernel_size = (1, 5), activation='relu', padding='valid',strides=(1,1)))(x)
+        x = TimeDistributed(Conv2DTranspose(filters = 5, kernel_size = (1, 12), activation='relu', padding='valid',strides=(1,1)))(x)
+        x = TimeDistributed(Dense(1,activation='sigmoid'))(x)
+
+        CNN = Model(inputs=input, outputs=x,name="CNN")
+        CNN.compile(optimizer='adam', loss='BinaryCrossentropy')
+        CNN.summary()
+
+        model = CNN   
     else:
         model = []
         print('wrong type name') 

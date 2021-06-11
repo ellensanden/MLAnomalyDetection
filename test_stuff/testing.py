@@ -6,7 +6,7 @@ from cont_data_process import continuous_process
 from prepare_data_cube_cont import make_cubes_cont
 from prepare_LSTM_data import LSTM_data
 from create_model import make_model
-
+# next will be timedist_bi_conv? or cnn_bi_lstm 
 
 training_filename = 'dataframe_training_new.csv'
 training_df = pd.read_csv(training_filename, sep=',')
@@ -21,7 +21,7 @@ training_dataValues = training_dataValues.to_numpy()
 n_steps = int(allRowsTraining/10000) # about 10k in each step #127 before
 print(n_steps)
 training_split = np.array_split(range(allRowsTraining), n_steps)
-
+ 
 val_filename = 'dataframe_validation_normal_new.csv'
 val_df = pd.read_csv(val_filename, sep=',')
 allRowsVal = val_df.shape[0]
@@ -37,21 +37,25 @@ val_split = np.array_split(range(allRowsVal), n_steps)
 #model =  keras.models.load_model(modelname)
 
 
-#type = 'timeDist_cnn'
-#type = 'cnn_lstm'
-#type = '3dCNN'
-#type = 'cannolo_LSTM'
-#type = 'bi_convLSTM'
-type = 'conv-lstm'
-model = make_model(type)
-#n_timesteps = 40
- 
-overlap = 20
+type1 = 'bi_convLSTM'
+model1 = make_model(type1)
 
-es = EarlyStopping(monitor='val_loss', mode='min', verbose=0, patience=10)
-checkpoint_filepath = '2d_cnn_lstm_final'   # MISSA INTE ATT ÄNDRA!!!!!!!!!!!
-model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
-    filepath=checkpoint_filepath,
+type2 = 'timedist_cnn_lstm' 
+model2 = make_model(type2) 
+
+es1 = EarlyStopping(monitor='val_loss', mode='min', verbose=0, patience=10)
+checkpoint_filepath1 = 'bi_convLSTM_final'   # MISSA INTE ATT ÄNDRA!!!!!!!!!!!
+model_checkpoint_callback1 = tf.keras.callbacks.ModelCheckpoint(
+    filepath=checkpoint_filepath1,
+    save_weights_only=False,
+    monitor='val_loss',
+    mode='min',
+    save_best_only=True)
+
+es2 = EarlyStopping(monitor='val_loss', mode='min', verbose=0, patience=10)
+checkpoint_filepath2 = 'timedist_cnn_lstm_final'   # MISSA INTE ATT ÄNDRA!!!!!!!!!!!
+model_checkpoint_callback2 = tf.keras.callbacks.ModelCheckpoint(
+    filepath=checkpoint_filepath2,
     save_weights_only=False,
     monitor='val_loss',
     mode='min',
@@ -75,7 +79,13 @@ for y in range(n_steps):
     #x_val = LSTM_data(val_data,overlap)
     x_train,_ = make_cubes_cont(t_IDs,training_data,40,'cnn') 
     x_val,_ = make_cubes_cont(v_IDs,val_data,40,'cnn') 
-    model.fit(x_train,x_train, validation_data=(x_val, x_val), epochs=100, verbose=2, batch_size = 100, shuffle=False, callbacks = [es,model_checkpoint_callback])
+ 
+    model2.fit(x_train,x_train, validation_data=(x_val, x_val), epochs=100, verbose=2, batch_size = 100, shuffle=False, callbacks = [es2,model_checkpoint_callback2])
+    model1.fit(x_train,x_train, validation_data=(x_val, x_val), epochs=100, verbose=2, batch_size = 100, shuffle=False, callbacks = [es1,model_checkpoint_callback1])
 
-#model.save('testing_this')
 
+
+
+
+
+   
