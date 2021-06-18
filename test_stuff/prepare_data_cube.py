@@ -34,7 +34,7 @@ def make_cubes(IDs,data,n_timesteps,type):#(IDs,AttackIDs,data,data_with_attack,
 
     n_rows = data.shape[0]
     b = np.r_[0:n_rows]
-    overlap = 5
+    overlap = 40
     n_samples,samples = overlapping_window(n_timesteps,overlap,b)
 
     data = data[n_samples,:]

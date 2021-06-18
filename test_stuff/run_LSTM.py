@@ -37,7 +37,7 @@ for currentRow in np.arange(len(storage)):
 from matplotlib import pyplot
 import keras
 import tensorflow as tf
-from keras.models import Model
+from keras.models import Model 
 from keras.models import Sequential
 from keras.layers import Input
 from keras.layers import LSTM
@@ -86,7 +86,7 @@ modelname = 'LSTM_autoencoder_all_rows_ID_043f'
 #modelname = 'LSTM_AE_128_one_ID_june'
 CNN =  keras.models.load_model(modelname)
 
-attack_cubes = X_train[attack_samples,:,:]
+attack_cubes = X_train[attack_samples,:,:] 
 x_test = X_train[no_attacks,:,:]
 
 

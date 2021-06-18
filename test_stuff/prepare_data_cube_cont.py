@@ -1,4 +1,4 @@
-def make_cubes_cont(IDs,data,n_timesteps,type):
+def make_cubes_cont(IDs,data,n_timesteps,type,data_ind,overlap):
     import numpy as np
     from numpy import array
 
@@ -15,30 +15,32 @@ def make_cubes_cont(IDs,data,n_timesteps,type):
     
     # only normal data
         
-    def overlapping_window (window_size,overlap,seq): # overlap 1 is max. larger number would be less overlap
+    def overlapping_window (window_size,overlap,seq,original_ind): # overlap 1 is max. larger number would be less overlap
     
         seq = array([seq[i : i + window_size] for i in range(0, len(seq), overlap)]) 
-    
+        original_ind = array([original_ind[i : i + window_size] for i in range(0, len(original_ind), overlap)]) 
         correct = [len(x)==window_size for x in seq]
+        original_correct = [len(x)==window_size for x in original_ind]
         seq = seq[correct]
-        samples = np.stack(seq, axis=0 )
-
+        original_ind = original_ind[original_correct]
+        #samples = np.stack(seq, axis=0 )
+        original_samples = np.stack(original_ind, axis=0 )
         seq  = np.concatenate((seq), axis=None)
 
-        return seq,samples
+        return seq,original_samples
 
    
-
-    n_rows = data.shape[0]
+    original_ind = data_ind
+    n_rows = data.shape[0] 
     b = np.r_[0:n_rows]
-    overlap = 5
-    n_samples,samples = overlapping_window(n_timesteps,overlap,b)
+    
+    n_samples,original_samples = overlapping_window(n_timesteps,overlap,b,original_ind)
 
     data = data[n_samples,:]
     data = np.squeeze(data)
 
-    IDs = IDs.reset_index(drop=True) 
-    id = convert_to_binaryIDs(IDs)
+    #IDs = IDs.reset_index(drop=True) 
+    id = convert_to_binaryIDs(IDs) 
     id = id[n_samples,:]
 
     ID_matrix =  array([[id],]*data.shape[1])
@@ -50,7 +52,6 @@ def make_cubes_cont(IDs,data,n_timesteps,type):
     dataCube[:,:,0] = data
 
     n_normal_samples = int(np.floor(dataCube.shape[0]/n_timesteps))
-    train_size = int(np.floor(0.7*n_normal_samples))
     last_timestep = n_normal_samples*n_timesteps
 
     x = dataCube[0:last_timestep,:,:]
@@ -61,7 +62,7 @@ def make_cubes_cont(IDs,data,n_timesteps,type):
 
         print(f'x shape = {x.shape}')
 
-        return x,samples 
+        return x,original_samples 
     # for cnn lstm
     if type == 'cnn_lstm':
 
@@ -69,7 +70,7 @@ def make_cubes_cont(IDs,data,n_timesteps,type):
         
         print(f'x shape = {x.shape}')
 
-        return x,samples
+        return x,original_samples
     
 
     # for time dist cnn 
@@ -79,8 +80,8 @@ def make_cubes_cont(IDs,data,n_timesteps,type):
         
         print(f'x shape = {x.shape}')
 
-        return x,samples
+        return x,original_samples
     
 
 
-    return x, samples
+    return x, original_samples
