@@ -140,7 +140,7 @@ def make_model(type):
         x = Conv3D(filters = 5, kernel_size = (9, 9, 3), strides=(1, 1, 1), padding='same')(x)  # this is in the wrong spot ??? F
         x = BatchNormalization()(x)                                                                                     # G
         x = Activation('relu')(x)                                                                                        
-        x = MaxPool3D((1,1,1),padding='same')(x)                                                                        # E
+        x = MaxPool3D((1,1,1),padding='same')(x)                                                                         # E
 
 
         x = Conv3DTranspose(5,kernel_size=(9,9,3), strides=(1, 1, 1),activation='relu')(x)                              # H
