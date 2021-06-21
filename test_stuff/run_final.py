@@ -18,6 +18,7 @@ allRows = df.shape[0]
 IDs = df['ID']
 IDs = np.array(IDs)
 attack = df[df['Attack'] == 'T'].copy()
+#attack = df[df['Attack'] == 'Yes'].copy()
 attack_ind = attack.index
 
 #dataValues = df.drop([ "ID", "Packet Deltatime", "Attack","Attack Window Number", "Normal Window Number"], axis = 1).copy()
@@ -32,18 +33,11 @@ split = np.array_split(range(allRows), n_steps)
 #type = 'cnn'
 #type = 'cnn_lstm'
 #type = 'timeDist_cnn'
-#type = 'cnn'
-#modelname = '3dCNN_final'
-#modelname = 'small_LSTM_final'
-#modelname = 'cannolo_LSTM_final'
-#modelname = 'panic2dcnn' 
-#modelname = 'conv-lstm_gear_FINAL'
-#modelname = 'timedist_2d_cnn_lstm_gear_FINAL'
-#modelname = '3dCNN_gear_FINAL'
-type = 'cnn'
-modelname = 'biconv-06-17'
-model =  keras.models.load_model(modelname)
+#type = 'lstm'
 
+modelname = 'cannolo_LSTM_gear_06-17'
+model =  keras.models.load_model(modelname)
+overlap = 40
 all_attack_errors = []
 all_normal_errors = []
 
@@ -59,7 +53,7 @@ for y in range(n_steps):
     # LSTM:
     #x_val,samples = LSTM_data(training_data,40,data_ind)
   
-    x_val,samples = make_cubes_cont(t_IDs,training_data,40,type,data_ind) 
+    x_val,samples = make_cubes_cont(t_IDs,training_data,40,type,data_ind,overlap) 
 
     contains_attack = [np.any(np.in1d(x, attack_ind)) for x in samples]
     attack_samples = contains_attack
@@ -104,12 +98,12 @@ for y in range(n_steps):
  
  
 
-f = open('normal_errors_biconv-06-18_gear.pckl', 'wb')
+f = open('normal_errors_biconv_gear_06-21.pckl', 'wb')
 pickle.dump(all_normal_errors, f)
 f.close()
 
 
-f = open('attack_errors_biconv-06-18_gear.pckl', 'wb')
+f = open('attack_errors_biconv_gear_06-21.pckl', 'wb')
 pickle.dump(all_attack_errors, f)
 f.close()
 

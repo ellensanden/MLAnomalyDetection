@@ -9,48 +9,52 @@ from prepare_data_cube_cont import make_cubes_cont
 from prepare_LSTM_data import LSTM_data
 from create_model import make_model
 
-#filename = 'dataframe_test_attack.csv'
-filename = 'gear_test.csv'
+filename = 'dataframe_test_attack.csv'
+#filename = 'gear_test.csv'
 df = pd.read_csv(filename, sep=',')
-allRows = df.shape[0]
-
+#allRows = df.shape[0]
+allRows = 148400
 IDs = df['ID']
 IDs = np.array(IDs)
-#IDs = IDs[:148400]
-attack = df[df['Attack'] == 'T'].copy()
-#attack = attack[:148400]
+IDs = IDs[:148400]
+#attack = df[df['Attack'] == 'T'].copy()
+attack = df[df['Attack'] == 'Yes'].copy()
+attack = attack[:148400]
 attack_ind = attack.index
 
-#dataValues = df.drop([ "ID", "Packet Deltatime", "Attack","Attack Window Number", "Normal Window Number"], axis = 1).copy()
-dataValues = df.drop([ "Timestamp","ID", "Packet Deltatime", "Attack","Attack Window Number", "Normal Window Number","Total Time","Dataset"], axis = 1).copy()
+dataValues = df.drop([ "ID", "Packet Deltatime", "Attack","Attack Window Number", "Normal Window Number"], axis = 1).copy()
+#dataValues = df.drop([ "Timestamp","ID", "Packet Deltatime", "Attack","Attack Window Number", "Normal Window Number","Total Time","Dataset"], axis = 1).copy()
 
 dataValues = dataValues.to_numpy() 
 print(dataValues.shape)
-#dataValues = dataValues[:148400]
-n_steps = int(allRows/10000) # about 10k in each step #127 before
+dataValues = dataValues[:148400]
+#n_steps = int(allRows/10000) # about 10k in each step #127 before
+n_steps = int(allRows/14840) 
 print(n_steps)
 split = np.array_split(range(allRows), n_steps)
 
-type = 'cnn'
+#type = 'cnn'
 #type = 'lstm'
 #modelname = '3dCNN_final'
 #modelname = 'small_LSTM_final'
-#type = 'cnn_lstm'
-modelname = 'newnew3dcnn'
+type = 'cnn_lstm'
+modelname = '2d_cnn_lstm_new_dataset'
 
 model =  keras.models.load_model(modelname)
 
 all_attack_samples = []
 errors = []
-
+overlap = 40
 for y in range(n_steps):
     print(f'{y} of {n_steps}')
     data_ind = split[y]
 
     t_IDs = IDs[data_ind]
     training_data = dataValues[data_ind,:]
-    x_val,samples = make_cubes_cont(t_IDs,training_data,40,type,data_ind) 
-    
+
+    x_val,samples = make_cubes_cont(t_IDs,training_data,40,type,data_ind,overlap) 
+    #x_val,samples = LSTM_data(training_data,40,data_ind)
+
     contains_attack = [np.any(np.in1d(x, attack_ind)) for x in samples]
     attack_samples = contains_attack
     
@@ -74,12 +78,12 @@ for y in range(n_steps):
     all_attack_samples.append(attack_samples)
  
  
-f = open('test_errors_newnew3dcnn.pckl', 'wb')
+f = open('test_errors_2d_cnn_lstm_new_dataset_06-21.pckl', 'wb')
 pickle.dump(errors, f)
 f.close()
 
 
-f = open('all_attack_samples_newnew3dcnn.pckl', 'wb')
+f = open('all_attack_samples_2d_cnn_lstm_new_dataset_06-21.pckl', 'wb')
 pickle.dump(all_attack_samples, f)
 f.close()
 
